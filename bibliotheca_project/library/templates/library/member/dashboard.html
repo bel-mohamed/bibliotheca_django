@@ -1,0 +1,298 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Tableau de bord - Membre{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> Tableau de bord - {{ user.first_name }} {{ user.last_name }}
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Welcome Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="fas fa-user-circle"></i> Bienvenue, {{ user.username }} !
+                    </h4>
+                    <p class="card-text">
+                        Membre depuis le : {{ user.membership_date|date:"d F Y" }}
+                    </p>
+                    {% if can_borrow %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Vous pouvez emprunter des livres.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Vous avez atteint votre limite d'emprunts (5 livres).
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ active_borrowings.count }}</h4>
+                            <p class="card-text">Emprunts actifs</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ overdue_borrowings.count }}</h4>
+                            <p class="card-text">Retards</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ reservations.count }}</h4>
+                            <p class="card-text">Réservations</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bookmark fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ pending_penalties.count }}</h4>
+                            <p class="card-text">Pénalités</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-euro-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Borrowings -->
+    {% if active_borrowings %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book"></i> Mes emprunts actifs
+                    </h5>
+                    <a href="{% url 'my_borrowings' %}" class="btn btn-sm btn-outline-primary">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Livre</th>
+                                    <th>Date d'emprunt</th>
+                                    <th>Date de retour</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for borrowing in active_borrowings %}
+                                <tr>
+                                    <td>{{ borrowing.book.title }}</td>
+                                    <td>{{ borrowing.borrow_date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {{ borrowing.due_date|date:"d/m/Y" }}
+                                        {% if borrowing.is_overdue %}
+                                            <br><small class="text-danger">En retard de {{ borrowing.days_overdue }} jours</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if borrowing.status == 'active' %}
+                                            <span class="badge bg-success">Actif</span>
+                                        {% elif borrowing.status == 'overdue' %}
+                                            <span class="badge bg-danger">En retard</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'return_book_member' borrowing.pk %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-undo"></i> Retourner
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Pending Penalties -->
+    {% if pending_penalties %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Pénalités en attente
+                    </h5>
+                    <a href="{% url 'my_penalties' %}" class="btn btn-sm btn-outline-light">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> Vous avez des pénalités en attente. Veuillez les régler dès que possible.
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Livre</th>
+                                    <th>Montant</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for penalty in pending_penalties %}
+                                <tr>
+                                    <td>{{ penalty.borrowing.book.title }}</td>
+                                    <td>{{ penalty.amount }}€</td>
+                                    <td>{{ penalty.created_date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-warning">En attente</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Active Reservations -->
+    {% if reservations %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bookmark"></i> Mes réservations
+                    </h5>
+                    <a href="{% url 'my_reservations' %}" class="btn btn-sm btn-outline-primary">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Livre</th>
+                                    <th>Date de réservation</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reservation in reservations %}
+                                <tr>
+                                    <td>{{ reservation.book.title }}</td>
+                                    <td>{{ reservation.reservation_date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <span class="badge bg-info">En attente</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'cancel_reservation' reservation.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times"></i> Annuler
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt"></i> Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'book_search' %}" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Rechercher des livres
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'my_borrowings' %}" class="btn btn-success w-100">
+                                <i class="fas fa-book"></i> Mes emprunts
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'my_reservations' %}" class="btn btn-info w-100">
+                                <i class="fas fa-bookmark"></i> Mes réservations
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'my_profile' %}" class="btn btn-secondary w-100">
+                                <i class="fas fa-cog"></i> Mon profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

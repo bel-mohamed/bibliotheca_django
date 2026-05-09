@@ -1,0 +1,224 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Tableau de bord - Bibliothécaire{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt"></i> Tableau de bord - Bibliothécaire
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_books }}</h4>
+                            <p class="card-text">Total livres</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_members }}</h4>
+                            <p class="card-text">Membres</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ active_borrowings }}</h4>
+                            <p class="card-text">Emprunts actifs</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exchange-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ overdue_borrowings }}</h4>
+                            <p class="card-text">Retards</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Penalties Card -->
+    {% if total_penalties > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_penalties|floatformat:2 }}€</h4>
+                            <p class="card-text">Pénalités en attente</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-euro-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <!-- Recent Borrowings -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Emprunts récents
+                    </h5>
+                    <a href="{% url 'borrowing_list' %}" class="btn btn-sm btn-outline-primary">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_borrowings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Livre</th>
+                                        <th>Date</th>
+                                        <th>Retour</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for borrowing in recent_borrowings %}
+                                    <tr>
+                                        <td>{{ borrowing.user.username }}</td>
+                                        <td>{{ borrowing.book.title }}</td>
+                                        <td>{{ borrowing.borrow_date|date:"d/m/Y" }}</td>
+                                        <td>{{ borrowing.due_date|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {% if borrowing.status == 'active' %}
+                                                <span class="badge bg-success">Actif</span>
+                                            {% elif borrowing.status == 'overdue' %}
+                                                <span class="badge bg-danger">En retard</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Retourné</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun emprunt récent.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Popular Books -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star"></i> Livres populaires
+                    </h5>
+                    <a href="{% url 'report_popular' %}" class="btn btn-sm btn-outline-primary">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if popular_books %}
+                        {% for book in popular_books %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong>{{ book.title }}</strong><br>
+                                <small class="text-muted">{{ book.borrow_count }} emprunts</small>
+                            </div>
+                            <span class="badge bg-primary">{{ book.borrow_count }}</span>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Aucun livre populaire.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt"></i> Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'book_add' %}" class="btn btn-primary w-100">
+                                <i class="fas fa-plus"></i> Ajouter un livre
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'borrowing_create' %}" class="btn btn-success w-100">
+                                <i class="fas fa-plus"></i> Créer un emprunt
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'user_add' %}" class="btn btn-info w-100">
+                                <i class="fas fa-user-plus"></i> Ajouter un utilisateur
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'report_overdue' %}" class="btn btn-warning w-100">
+                                <i class="fas fa-exclamation-triangle"></i> Voir les retards
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
