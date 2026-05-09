@@ -1,0 +1,155 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Accueil - Bibliothèque{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-4">
+            <i class="fas fa-book-open"></i> Bienvenue à la Bibliothèque
+        </h1>
+        <p class="lead mb-4">
+            Découvrez notre collection de livres et gérez vos emprunts en ligne
+        </p>
+        {% if not user.is_authenticated %}
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-user-plus"></i> S'inscrire
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
+                        <i class="fas fa-tachometer-alt"></i> Accéder au tableau de bord
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Rechercher des livres</h5>
+                    <p class="card-text">
+                        Parcourez notre catalogue et trouvez le livre parfait pour vous.
+                    </p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'book_search' %}" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Rechercher
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-book-reader fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Emprunter des livres</h5>
+                    <p class="card-text">
+                        Empruntez jusqu'à 5 livres pour une durée de 14 jours.
+                    </p>
+                    {% if user.is_authenticated and user.is_member %}
+                        <a href="{% url 'book_search' %}" class="btn btn-success">
+                            <i class="fas fa-book"></i> Emprunter
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-history fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Suivre vos emprunts</h5>
+                    <p class="card-text">
+                        Consultez votre historique d'emprunts et vos réservations.
+                    </p>
+                    {% if user.is_authenticated and user.is_member %}
+                        <a href="{% url 'my_borrowings' %}" class="btn btn-warning">
+                            <i class="fas fa-list"></i> Mes emprunts
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if not user.is_authenticated %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">
+                            <i class="fas fa-info-circle"></i> Comment ça marche ?
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="step-number">1</div>
+                                <h5>Inscription</h5>
+                                <p>Créez votre compte gratuitement pour accéder à tous nos services.</p>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="step-number">2</div>
+                                <h5>Recherche</h5>
+                                <p>Explorez notre catalogue et trouvez les livres qui vous intéressent.</p>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="step-number">3</div>
+                                <h5>Emprunt</h5>
+                                <p>Empruntez jusqu'à 5 livres pour une période de 14 jours.</p>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="step-number">4</div>
+                                <h5>Retour</h5>
+                                <p>Retournez vos livres à temps pour éviter les pénalités.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto 15px;
+}
+
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}
