@@ -1,0 +1,134 @@
+{% extends 'library/base.html' %}
+{% load static %}
+
+{% block title %}Mes Emprunts - Bibliothèque{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-book-reader"></i> Mes Emprunts</h2>
+                <a href="{% url 'library:member_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historique des emprunts</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Livre</th>
+                                        <th>Auteur</th>
+                                        <th>Date d'emprunt</th>
+                                        <th>Date de retour</th>
+                                        <th>Statut</th>
+                                        <th>Pénalité</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for borrowing in page_obj %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ borrowing.book.title }}</strong><br>
+                                            <small class="text-muted">ISBN: {{ borrowing.book.isbn }}</small>
+                                        </td>
+                                        <td>{{ borrowing.book.author.name }}</td>
+                                        <td>{{ borrowing.borrow_date|date:"d/m/Y" }}</td>
+                                        <td>
+                                            {% if borrowing.return_date %}
+                                                {{ borrowing.return_date|date:"d/m/Y" }}
+                                            {% else %}
+                                                <span class="text-warning">Non retourné</span><br>
+                                                <small>Échéance: {{ borrowing.due_date|date:"d/m/Y" }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if borrowing.return_date %}
+                                                <span class="badge bg-success">Retourné</span>
+                                            {% else %}
+                                                {% if borrowing.is_overdue %}
+                                                    <span class="badge bg-danger">En retard</span>
+                                                {% else %}
+                                                    <span class="badge bg-info">En cours</span>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if borrowing.penalty_amount > 0 %}
+                                                <span class="text-danger">{{ borrowing.penalty_amount }}€</span>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if not borrowing.return_date %}
+                                                <a href="{% url 'library:return_book' borrowing.id %}" 
+                                                   class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-undo"></i> Retourner
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                        <nav aria-label="Pagination des emprunts">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Vous n'avez aucun emprunt pour le moment.
+                    <a href="{% url 'library:book_search' %}" class="alert-link">Parcourir les livres</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'library/base.html' %}
+{% load static %}
+
+{% block title %}Mes Réservations - Bibliothèque{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-bookmark"></i> Mes Réservations</h2>
+                <a href="{% url 'library:member_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if reservations %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Réservations actives</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Livre</th>
+                                        <th>Auteur</th>
+                                        <th>Date de réservation</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in reservations %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ reservation.book.title }}</strong><br>
+                                            <small class="text-muted">ISBN: {{ reservation.book.isbn }}</small>
+                                        </td>
+                                        <td>{{ reservation.book.author.name }}</td>
+                                        <td>{{ reservation.reservation_date|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if reservation.book.is_available %}
+                                                <span class="badge bg-success">Disponible</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">En attente</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if reservation.book.is_available %}
+                                                <a href="{% url 'library:borrow_book' reservation.book.id %}" 
+                                                   class="btn btn-sm btn-success me-2">
+                                                    <i class="fas fa-hand-holding"></i> Emprunter
+                                                </a>
+                                            {% endif %}
+                                            <a href="{% url 'library:cancel_reservation' reservation.id %}" 
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')">
+                                                <i class="fas fa-times"></i> Annuler
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Information :</strong> Vous serez notifié par email dès qu'un livre réservé sera disponible. 
+                            Vous avez 48 heures pour venir l'emprunter après notification.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Vous n'avez aucune réservation active.
+                    <a href="{% url 'library:book_search' %}" class="alert-link">Parcourir les livres</a> pour en réserver.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Comment fonctionnent les réservations ?</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-bookmark text-primary"></i> Réserver un livre</h6>
+                            <p class="text-muted">Quand un livre est indisponible, vous pouvez le réserver. Vous serez automatiquement notifié dès qu'il sera de nouveau disponible.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-bell text-warning"></i> Notification</h6>
+                            <p class="text-muted">Vous recevrez une notification par email lorsque le livre sera disponible. Vous aurez alors 48 heures pour venir l'emprunter.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

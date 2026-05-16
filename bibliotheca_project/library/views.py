@@ -9,11 +9,16 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
-from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty
+from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation
 from .forms import (
     UserRegistrationForm, UserLoginForm, BookForm, AuthorForm, 
     CategoryForm, BorrowingForm, UserEditForm, SearchForm
 )
+
+
+def is_admin(user):
+    """Check if user is an admin"""
+    return user.is_authenticated and user.is_admin
 
 
 def is_librarian(user):
@@ -85,10 +90,35 @@ def user_logout(request):
 @login_required
 def dashboard(request):
     """Dashboard view - redirects based on user type"""
-    if request.user.is_librarian:
-        return redirect('librarian_dashboard')
+    if request.user.is_admin:
+        return redirect('library:admin_dashboard')
+    elif request.user.is_librarian:
+        return redirect('library:librarian_dashboard')
     else:
-        return redirect('member_dashboard')
+        return redirect('library:member_dashboard')
+
+
+# ==================== ADMIN VIEWS ====================
+
+@login_required
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    """Admin dashboard with system-wide statistics"""
+    context = {
+        'total_users': User.objects.count(),
+        'total_admins': User.objects.filter(user_type='admin').count(),
+        'total_librarians': User.objects.filter(user_type='librarian').count(),
+        'total_members': User.objects.filter(user_type='member').count(),
+        'total_books': Book.objects.count(),
+        'total_borrowings': Borrowing.objects.count(),
+        'active_borrowings': Borrowing.objects.filter(status='active').count(),
+        'overdue_borrowings': Borrowing.objects.filter(status='overdue').count(),
+        'total_reservations': Reservation.objects.filter(is_active=True).count(),
+        'pending_reclamations': Reclamation.objects.filter(status='pending').count(),
+        'resolved_reclamations': Reclamation.objects.filter(status='resolved').count(),
+        'total_penalties': Penalty.objects.filter(status='pending').count(),
+    }
+    return render(request, 'library/admin/dashboard.html', context)
 
 
 # ==================== LIBRARIAN VIEWS ====================
@@ -134,7 +164,7 @@ def book_add(request):
         if form.is_valid():
             book = form.save()
             messages.success(request, f'Livre "{book.title}" ajouté avec succès!')
-            return redirect('book_list')
+            return redirect('library:book_list')
     else:
         form = BookForm()
     
@@ -152,7 +182,7 @@ def book_edit(request, pk):
         if form.is_valid():
             book = form.save()
             messages.success(request, f'Livre "{book.title}" modifié avec succès!')
-            return redirect('book_list')
+            return redirect('library:book_list')
     else:
         form = BookForm(instance=book)
     
@@ -169,7 +199,7 @@ def book_delete(request, pk):
         title = book.title
         book.delete()
         messages.success(request, f'Livre "{title}" supprimé avec succès!')
-        return redirect('book_list')
+        return redirect('library:book_list')
     
     return render(request, 'library/librarian/book_delete.html', {'book': book})
 
@@ -210,7 +240,7 @@ def author_add(request):
         if form.is_valid():
             author = form.save()
             messages.success(request, f'Auteur "{author}" ajouté avec succès!')
-            return redirect('author_list')
+            return redirect('library:author_list')
     else:
         form = AuthorForm()
     
@@ -228,7 +258,7 @@ def author_edit(request, pk):
         if form.is_valid():
             author = form.save()
             messages.success(request, f'Auteur "{author}" modifié avec succès!')
-            return redirect('author_list')
+            return redirect('library:author_list')
     else:
         form = AuthorForm(instance=author)
     
@@ -245,7 +275,7 @@ def author_delete(request, pk):
         name = str(author)
         author.delete()
         messages.success(request, f'Auteur "{name}" supprimé avec succès!')
-        return redirect('author_list')
+        return redirect('library:author_list')
     
     return render(request, 'library/librarian/author_delete.html', {'author': author})
 
@@ -269,7 +299,7 @@ def category_add(request):
         if form.is_valid():
             category = form.save()
             messages.success(request, f'Catégorie "{category.name}" ajoutée avec succès!')
-            return redirect('category_list')
+            return redirect('library:category_list')
     else:
         form = CategoryForm()
     
@@ -287,7 +317,7 @@ def category_edit(request, pk):
         if form.is_valid():
             category = form.save()
             messages.success(request, f'Catégorie "{category.name}" modifiée avec succès!')
-            return redirect('category_list')
+            return redirect('library:category_list')
     else:
         form = CategoryForm(instance=category)
     
@@ -304,7 +334,7 @@ def category_delete(request, pk):
         name = category.name
         category.delete()
         messages.success(request, f'Catégorie "{name}" supprimée avec succès!')
-        return redirect('category_list')
+        return redirect('library:category_list')
     
     return render(request, 'library/librarian/category_delete.html', {'category': category})
 
@@ -332,7 +362,7 @@ def user_add(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, f'Utilisateur "{user.username}" ajouté avec succès!')
-            return redirect('user_list')
+            return redirect('library:user_list')
     else:
         form = UserRegistrationForm()
     
@@ -350,7 +380,7 @@ def user_edit(request, pk):
         if form.is_valid():
             user = form.save()
             messages.success(request, f'Utilisateur "{user.username}" modifié avec succès!')
-            return redirect('user_list')
+            return redirect('library:user_list')
     else:
         form = UserEditForm(instance=user)
     
@@ -367,7 +397,7 @@ def user_delete(request, pk):
         username = user.username
         user.delete()
         messages.success(request, f'Utilisateur "{username}" supprimé avec succès!')
-        return redirect('user_list')
+        return redirect('library:user_list')
     
     return render(request, 'library/librarian/user_delete.html', {'user': user})
 
@@ -434,7 +464,7 @@ def borrowing_create(request):
             borrowing.book.save()
             
             messages.success(request, f'Emprunt créé avec succès pour "{borrowing.book.title}"!')
-            return redirect('borrowing_list')
+            return redirect('library:borrowing_list')
     else:
         form = BorrowingForm()
     
@@ -454,7 +484,7 @@ def borrowing_return(request, pk):
         if borrowing.penalty_amount > 0:
             messages.warning(request, f'Une pénalité de {borrowing.penalty_amount}€ a été appliquée.')
         
-        return redirect('borrowing_list')
+        return redirect('library:borrowing_list')
     
     return render(request, 'library/librarian/borrowing_return.html', {'borrowing': borrowing})
 
@@ -492,7 +522,7 @@ def penalty_mark_paid(request, pk):
         payment_method = request.POST.get('payment_method', 'cash')
         penalty.mark_as_paid(payment_method)
         messages.success(request, f'Pénalité de {penalty.amount}€ marquée comme payée!')
-        return redirect('penalty_list')
+        return redirect('library:penalty_list')
     
     return render(request, 'library/librarian/penalty_mark_paid.html', {'penalty': penalty})
 
@@ -722,7 +752,7 @@ def reserve_book(request, pk):
         # Check if book is available
         if book.is_available:
             messages.info(request, f'Le livre "{book.title}" est disponible. Vous pouvez l\'emprunter directement.')
-            return redirect('borrow_book', pk=pk)
+            return redirect('library:borrow_book', pk=pk)
         
         # Check if user has already reserved this book
         existing_reservation = Reservation.objects.filter(
@@ -742,7 +772,7 @@ def reserve_book(request, pk):
         )
         
         messages.success(request, f'Livre "{book.title}" réservé avec succès! Vous serez notifié dès qu\'il sera disponible.')
-        return redirect('my_reservations')
+        return redirect('library:my_reservations')
     
     return render(request, 'library/member/reserve_book.html', {'book': book})
 
@@ -770,7 +800,7 @@ def cancel_reservation(request, pk):
         reservation.is_active = False
         reservation.save()
         messages.info(request, f'Réservation pour "{book_title}" annulée.')
-        return redirect('my_reservations')
+        return redirect('library:my_reservations')
     
     return render(request, 'library/member/cancel_reservation.html', {'reservation': reservation})
 
@@ -796,8 +826,101 @@ def my_profile(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Profil mis à jour avec succès!')
-            return redirect('my_profile')
+            return redirect('library:my_profile')
     else:
         form = UserEditForm(instance=request.user)
     
     return render(request, 'library/member/my_profile.html', {'form': form})
+
+
+# ==================== RECLAMATION VIEWS ====================
+
+@login_required
+@user_passes_test(is_member)
+def create_reclamation(request):
+    """Create a new reclamation"""
+    if request.method == 'POST':
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        priority = request.POST.get('priority', 'medium')
+        
+        if subject and message:
+            reclamation = Reclamation.objects.create(
+                user=request.user,
+                subject=subject,
+                message=message,
+                priority=priority
+            )
+            messages.success(request, 'Votre réclamation a été envoyée avec succès!')
+            return redirect('library:my_reclamations')
+        else:
+            messages.error(request, 'Veuillez remplir tous les champs obligatoires.')
+    
+    return render(request, 'library/member/create_reclamation.html')
+
+
+@login_required
+@user_passes_test(is_member)
+def my_reclamations(request):
+    """View user's reclamations"""
+    reclamations = Reclamation.objects.filter(user=request.user).order_by('-created_date')
+    paginator = Paginator(reclamations, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'library/member/my_reclamations.html', {'page_obj': page_obj})
+
+
+@login_required
+@user_passes_test(is_librarian)
+def reclamation_list(request):
+    """View all reclamations for librarians"""
+    reclamations = Reclamation.objects.all().order_by('-created_date')
+    
+    # Filter by status
+    status_filter = request.GET.get('status')
+    if status_filter:
+        reclamations = reclamations.filter(status=status_filter)
+    
+    # Filter by priority
+    priority_filter = request.GET.get('priority')
+    if priority_filter:
+        reclamations = reclamations.filter(priority=priority_filter)
+    
+    paginator = Paginator(reclamations, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+    }
+    
+    return render(request, 'library/librarian/reclamation_list.html', context)
+
+
+@login_required
+@user_passes_test(is_librarian)
+def reclamation_detail(request, pk):
+    """View reclamation details"""
+    reclamation = get_object_or_404(Reclamation, pk=pk)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'in_progress':
+            reclamation.mark_as_in_progress()
+            messages.success(request, 'Réclamation marquée comme en cours.')
+        elif action == 'resolve':
+            response = request.POST.get('response')
+            reclamation.mark_as_resolved(response)
+            messages.success(request, 'Réclamation résolue avec succès.')
+        elif action == 'reject':
+            reclamation.status = 'rejected'
+            reclamation.save()
+            messages.success(request, 'Réclamation rejetée.')
+        
+        return redirect('library:reclamation_detail', pk=pk)
+    
+    return render(request, 'library/librarian/reclamation_detail.html', {'reclamation': reclamation})

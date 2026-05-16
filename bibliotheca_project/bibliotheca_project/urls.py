@@ -29,7 +29,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     
     # Library URLs
-    path('library/', include('library.urls')),
+    path('library/', include(('library.urls', 'library'))),
 ]
 
 # Serve media files during development

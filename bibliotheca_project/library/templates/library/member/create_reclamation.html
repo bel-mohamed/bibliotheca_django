@@ -1,0 +1,121 @@
+{% extends 'library/base.html' %}
+{% load static %}
+
+{% block title %}Nouvelle Réclamation - Bibliothèque{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-exclamation-circle"></i> Nouvelle Réclamation</h2>
+                <a href="{% url 'library:member_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Envoyer une réclamation</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Sujet <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="subject" name="subject" required 
+                                   placeholder="Ex: Problème avec un livre, Demande d'information...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="priority" class="form-label">Priorité</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">Faible</option>
+                                <option value="medium" selected>Moyenne</option>
+                                <option value="high">Élevée</option>
+                                <option value="urgent">Urgente</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="message" name="message" rows="6" required 
+                                      placeholder="Décrivez votre réclamation en détail..."></textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Information :</strong> Votre réclamation sera traitée par l'équipe de la bibliothèque. 
+                            Vous recevrez une réponse dans les plus brefs délais.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'library:my_reclamations' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-list"></i> Voir mes réclamations
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Envoyer la réclamation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Guide des réclamations</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success"></i> Quand faire une réclamation ?</h6>
+                            <ul class="text-muted">
+                                <li>Problème avec un livre emprunté</li>
+                                <li>Difficulté avec le site web</li>
+                                <li>Question sur votre compte</li>
+                                <li>Demande d'information</li>
+                                <li>Suggestion d'amélioration</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-clock text-warning"></i> Délais de traitement</h6>
+                            <ul class="text-muted">
+                                <li><strong>Urgent :</strong> Moins de 24h</li>
+                                <li><strong>Élevé :</strong> 1-2 jours</li>
+                                <li><strong>Moyen :</strong> 3-5 jours</li>
+                                <li><strong>Faible :</strong> 1 semaine</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+</style>
+{% endblock %}

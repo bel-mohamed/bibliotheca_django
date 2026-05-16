@@ -30,44 +30,53 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     {% if user.is_authenticated %}
-                        {% if user.is_librarian %}
+                        {% if user.is_admin %}
+                            <!-- Admin Menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-shield-alt"></i> Administration
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><h6 class="dropdown-header">Gestion des utilisateurs</h6></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:user_list' %}"><i class="fas fa-users"></i> Utilisateurs</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Gestion bibliothèque</h6></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:book_list' %}"><i class="fas fa-book"></i> Livres</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:author_list' %}"><i class="fas fa-user-edit"></i> Auteurs</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:category_list' %}"><i class="fas fa-tags"></i> Catégories</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Opérations</h6></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:borrowing_list' %}"><i class="fas fa-exchange-alt"></i> Emprunts</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:penalty_list' %}"><i class="fas fa-euro-sign"></i> Pénalités</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:reclamation_list' %}"><i class="fas fa-exclamation-triangle"></i> Réclamations</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Rapports</h6></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:report_overdue' %}"><i class="fas fa-exclamation-triangle"></i> Livres en retard</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:report_popular' %}"><i class="fas fa-chart-bar"></i> Livres populaires</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:report_active_members' %}"><i class="fas fa-users"></i> Membres actifs</a></li>
+                                </ul>
+                            </li>
+                        {% elif user.is_librarian %}
                             <!-- Librarian Menu -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="librarianDropdown" role="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-cog"></i> Gestion
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{% url 'book_list' %}"><i class="fas fa-book"></i> Livres</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'author_list' %}"><i class="fas fa-user-edit"></i> Auteurs</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'category_list' %}"><i class="fas fa-tags"></i> Catégories</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:book_list' %}"><i class="fas fa-book"></i> Livres</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:author_list' %}"><i class="fas fa-user-edit"></i> Auteurs</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:category_list' %}"><i class="fas fa-tags"></i> Catégories</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{% url 'user_list' %}"><i class="fas fa-users"></i> Utilisateurs</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'borrowing_list' %}"><i class="fas fa-exchange-alt"></i> Emprunts</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'penalty_list' %}"><i class="fas fa-euro-sign"></i> Pénalités</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:borrowing_list' %}"><i class="fas fa-exchange-alt"></i> Emprunts</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:penalty_list' %}"><i class="fas fa-euro-sign"></i> Pénalités</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Réclamations</h6></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:reclamation_list' %}"><i class="fas fa-exclamation-triangle"></i> Gérer les réclamations</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><h6 class="dropdown-header">Rapports</h6></li>
-                                    <li><a class="dropdown-item" href="{% url 'report_overdue' %}"><i class="fas fa-exclamation-triangle"></i> Livres en retard</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'report_popular' %}"><i class="fas fa-chart-bar"></i> Livres populaires</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'report_active_members' %}"><i class="fas fa-users"></i> Membres actifs</a></li>
-                                </ul>
-                            </li>
-                        {% else %}
-                            <!-- Member Menu -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'book_search' %}">
-                                    <i class="fas fa-search"></i> Rechercher
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="memberDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user"></i> Mon compte
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{% url 'my_borrowings' %}"><i class="fas fa-book"></i> Mes emprunts</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'my_reservations' %}"><i class="fas fa-bookmark"></i> Mes réservations</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'my_penalties' %}"><i class="fas fa-euro-sign"></i> Mes pénalités</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{% url 'my_profile' %}"><i class="fas fa-cog"></i> Mon profil</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:report_overdue' %}"><i class="fas fa-exclamation-triangle"></i> Livres en retard</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:report_popular' %}"><i class="fas fa-chart-bar"></i> Livres populaires</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'library:report_active_members' %}"><i class="fas fa-users"></i> Membres actifs</a></li>
                                 </ul>
                             </li>
                         {% endif %}

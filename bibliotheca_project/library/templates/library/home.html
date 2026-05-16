@@ -45,7 +45,7 @@
                         Parcourez notre catalogue et trouvez le livre parfait pour vous.
                     </p>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'book_search' %}" class="btn btn-primary">
+                        <a href="{% url 'library:book_search' %}" class="btn btn-primary">
                             <i class="fas fa-search"></i> Rechercher
                         </a>
                     {% endif %}
@@ -62,7 +62,7 @@
                         Empruntez jusqu'à 5 livres pour une durée de 14 jours.
                     </p>
                     {% if user.is_authenticated and user.is_member %}
-                        <a href="{% url 'book_search' %}" class="btn btn-success">
+                        <a href="{% url 'library:book_search' %}" class="btn btn-success">
                             <i class="fas fa-book"></i> Emprunter
                         </a>
                     {% endif %}
@@ -79,7 +79,7 @@
                         Consultez votre historique d'emprunts et vos réservations.
                     </p>
                     {% if user.is_authenticated and user.is_member %}
-                        <a href="{% url 'my_borrowings' %}" class="btn btn-warning">
+                        <a href="{% url 'library:my_borrowings' %}" class="btn btn-warning">
                             <i class="fas fa-list"></i> Mes emprunts
                         </a>
                     {% endif %}

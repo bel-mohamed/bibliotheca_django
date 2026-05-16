@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 from datetime import date, timedelta
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -9,8 +10,9 @@ class User(AbstractUser):
     Extended User model for library members and librarians
     """
     USER_TYPE_CHOICES = [
-        ('member', 'Member'),
+        ('admin', 'Admin'),
         ('librarian', 'Librarian'),
+        ('member', 'Member'),
     ]
     
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='member')
@@ -21,6 +23,10 @@ class User(AbstractUser):
     
     def __str__(self):
         return f"{self.username} ({self.get_user_type_display()})"
+    
+    @property
+    def is_admin(self):
+        return self.user_type == 'admin'
     
     @property
     def is_librarian(self):
@@ -149,7 +155,7 @@ class Borrowing(models.Model):
         Mark book as returned and update availability
         """
         if self.status != 'returned':
-            self.return_date = models.timezone.now()
+            self.return_date = timezone.now()
             self.status = 'returned'
             self.calculate_penalty()
             self.book.available_copies += 1
@@ -206,11 +212,64 @@ class Penalty(models.Model):
         Mark penalty as paid
         """
         self.status = 'paid'
-        self.paid_date = models.timezone.now()
+        self.paid_date = timezone.now()
         if payment_method:
             self.payment_method = payment_method
         self.borrowing.penalty_paid = True
         self.borrowing.save()
+        self.save()
+    
+    class Meta:
+        ordering = ['-created_date']
+
+
+class Reclamation(models.Model):
+    """
+    Reclamation model for students to send messages to admin
+    """
+    STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('in_progress', 'En cours'),
+        ('resolved', 'Résolu'),
+        ('rejected', 'Rejeté'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Faible'),
+        ('medium', 'Moyenne'),
+        ('high', 'Élevée'),
+        ('urgent', 'Urgente'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reclamations')
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    resolved_date = models.DateTimeField(null=True, blank=True)
+    admin_response = models.TextField(blank=True, null=True)
+    admin_notes = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.subject} ({self.status})"
+    
+    def mark_as_resolved(self, response=None):
+        """
+        Mark reclamation as resolved
+        """
+        self.status = 'resolved'
+        self.resolved_date = models.timezone.now()
+        if response:
+            self.admin_response = response
+        self.save()
+    
+    def mark_as_in_progress(self):
+        """
+        Mark reclamation as in progress
+        """
+        self.status = 'in_progress'
         self.save()
     
     class Meta:

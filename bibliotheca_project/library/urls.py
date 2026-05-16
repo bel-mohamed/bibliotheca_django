@@ -4,6 +4,9 @@ from . import views
 app_name = 'library'
 
 urlpatterns = [
+    # ==================== ADMIN URLS ====================
+    path('admin/', views.admin_dashboard, name='admin_dashboard'),
+    
     # ==================== LIBRARIAN URLS ====================
     path('librarian/', views.librarian_dashboard, name='librarian_dashboard'),
     
@@ -48,6 +51,10 @@ urlpatterns = [
     path('librarian/reports/popular/', views.report_popular_books, name='report_popular'),
     path('librarian/reports/active-members/', views.report_active_members, name='report_active_members'),
     
+    # Reclamations
+    path('librarian/reclamations/', views.reclamation_list, name='reclamation_list'),
+    path('librarian/reclamations/<int:pk>/', views.reclamation_detail, name='reclamation_detail'),
+    
     # ==================== MEMBER URLS ====================
     path('member/', views.member_dashboard, name='member_dashboard'),
     
@@ -70,4 +77,8 @@ urlpatterns = [
     
     # Profile
     path('profile/', views.my_profile, name='my_profile'),
+    
+    # Reclamations
+    path('reclamations/create/', views.create_reclamation, name='create_reclamation'),
+    path('my-reclamations/', views.my_reclamations, name='my_reclamations'),
 ]

@@ -1,0 +1,262 @@
+{% extends 'library/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Admin - Bibliothèque{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-shield-alt"></i> Dashboard Administrateur</h2>
+                <div class="text-muted">
+                    <i class="fas fa-user"></i> {{ user.username }} (Admin)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">Utilisateurs</h5>
+                            <h3 class="mb-0">{{ total_users }}</h3>
+                        </div>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">Livres</h5>
+                            <h3 class="mb-0">{{ total_books }}</h3>
+                        </div>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">Emprunts actifs</h5>
+                            <h3 class="mb-0">{{ active_borrowings }}</h3>
+                        </div>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-0">Réclamations</h5>
+                            <h3 class="mb-0">{{ pending_reclamations }}</h3>
+                        </div>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques détaillées -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-users"></i> Répartition des utilisateurs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-primary">{{ total_admins }}</h4>
+                                <small class="text-muted">Admins</small>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-info">{{ total_librarians }}</h4>
+                                <small class="text-muted">Bibliothécaires</small>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-success">{{ total_members }}</h4>
+                                <small class="text-muted">Membres</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Activité système</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Total emprunts</span>
+                                <strong>{{ total_borrowings }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Emprunts en retard</span>
+                                <strong class="text-danger">{{ overdue_borrowings }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Réservations actives</span>
+                                <strong class="text-info">{{ total_reservations }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Pénalités en attente</span>
+                                <strong class="text-warning">{{ total_penalties }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tachometer-alt"></i> Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'library:user_list' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-users"></i> Gérer les utilisateurs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'library:reclamation_list' %}" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-exclamation-triangle"></i> Voir les réclamations
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'library:borrowing_list' %}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-exchange-alt"></i> Gérer les emprunts
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'library:penalty_list' %}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-euro-sign"></i> Gérer les pénalités
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Système d'information -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informations système</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-shield-alt"></i> 
+                        <strong>Mode Administrateur :</strong> Vous avez accès à toutes les fonctionnalités du système. 
+                        Vous pouvez gérer les utilisateurs, superviser les activités du bibliothécaire et traiter les réclamations.
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cogs"></i> Fonctionnalités disponibles</h6>
+                            <ul class="text-muted">
+                                <li>Gestion complète des utilisateurs (création, modification, suppression)</li>
+                                <li>Supervision des activités des bibliothécaires</li>
+                                <li>Gestion des réclamations système</li>
+                                <li>Accès aux rapports et statistiques globales</li>
+                                <li>Configuration des paramètres système</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-chart-bar"></i> Statistiques en temps réel</h6>
+                            <ul class="text-muted">
+                                <li>{{ pending_reclamations }} réclamation(s) en attente de traitement</li>
+                                <li>{{ overdue_borrowings }} emprunt(s) en retard</li>
+                                <li>{{ total_reservations }} réservation(s) actives</li>
+                                <li>{{ total_penalties }} pénalité(s) en attente de paiement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.bg-success {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #d39e00) !important;
+}
+
+.bg-danger {
+    background: linear-gradient(135deg, #dc3545, #bd2130) !important;
+}
+</style>
+{% endblock %}

@@ -43,7 +43,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-search"></i> Rechercher
                             </button>
-                            <a href="{% url 'book_search' %}" class="btn btn-secondary ms-2">
+                            <a href="{% url 'library:book_search' %}" class="btn btn-secondary ms-2">
                                 <i class="fas fa-times"></i> Effacer
                             </a>
                         </div>
@@ -110,11 +110,11 @@
                                             <i class="fas fa-eye"></i> Détails
                                         </a>
                                         {% if book.is_available %}
-                                            <a href="{% url 'borrow_book' book.pk %}" class="btn btn-success btn-sm">
+                                            <a href="{% url 'library:borrow_book' book.pk %}" class="btn btn-success btn-sm">
                                                 <i class="fas fa-book"></i> Emprunter
                                             </a>
                                         {% else %}
-                                            <a href="{% url 'reserve_book' book.pk %}" class="btn btn-warning btn-sm">
+                                            <a href="{% url 'library:reserve_book' book.pk %}" class="btn btn-warning btn-sm">
                                                 <i class="fas fa-bookmark"></i> Réserver
                                             </a>
                                         {% endif %}
