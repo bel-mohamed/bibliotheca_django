@@ -1,0 +1,293 @@
+/* Portails Étudiant / Bibliothécaire / Administrateur */
+
+.portal-body {
+    min-height: 100vh;
+    display: flex;
+    background: var(--portal-bg, #f1f5f9);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.portal-sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: var(--portal-sidebar);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+}
+
+.portal-sidebar-brand {
+    padding: 1.35rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+    color: #fff;
+    display: block;
+}
+
+.portal-sidebar-brand:hover {
+    color: #fff;
+    opacity: 0.95;
+}
+
+.portal-sidebar-brand .brand-title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 0.15rem;
+}
+
+.portal-sidebar-brand .brand-sub {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.portal-nav {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+}
+
+.portal-nav-section {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    padding: 0.75rem 0.75rem 0.35rem;
+    margin-top: 0.5rem;
+}
+
+.portal-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.85rem;
+    color: rgba(255, 255, 255, 0.88);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+    font-size: 0.92rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.portal-nav-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.portal-nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-weight: 600;
+}
+
+.portal-nav-link i {
+    width: 1.25rem;
+    text-align: center;
+}
+
+.portal-sidebar-footer {
+    padding: 1rem 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.portal-main {
+    flex: 1;
+    margin-left: 260px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-topbar {
+    background: #fff;
+    padding: 1rem 1.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.portal-topbar h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+}
+
+.portal-topbar .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.portal-topbar .role-pill {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.portal-btn-logout {
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    white-space: nowrap;
+}
+
+.portal-content {
+    padding: 1.5rem 1.75rem 2.5rem;
+    flex: 1;
+}
+
+.portal-stat-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s;
+    height: 100%;
+}
+
+.portal-stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.portal-stat-card .card-body {
+    padding: 1.25rem;
+}
+
+.portal-stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.portal-welcome {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.portal-welcome .card-body {
+    padding: 1.5rem 1.75rem;
+}
+
+.portal-action-grid .btn {
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.portal-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.portal-card .card-header {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+/* Étudiant */
+.portal-student {
+    --portal-bg: #ecfdf5;
+    --portal-sidebar: linear-gradient(180deg, #0f766e 0%, #115e59 100%);
+    --portal-accent: #0d9488;
+    --portal-accent-dark: #0f766e;
+}
+
+.portal-student .role-pill {
+    background: #ccfbf1;
+    color: #0f766e;
+}
+
+.portal-student .portal-welcome {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+    color: #fff;
+}
+
+.portal-student .stat-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; }
+.portal-student .stat-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+.portal-student .stat-sky { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; }
+.portal-student .stat-rose { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; }
+
+/* Bibliothécaire */
+.portal-librarian {
+    --portal-bg: #fffbeb;
+    --portal-sidebar: linear-gradient(180deg, #b45309 0%, #92400e 100%);
+    --portal-accent: #d97706;
+    --portal-accent-dark: #b45309;
+}
+
+.portal-librarian .role-pill {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.portal-librarian .portal-welcome {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #fff;
+}
+
+.portal-librarian .stat-amber { background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; }
+.portal-librarian .stat-green { background: linear-gradient(135deg, #34d399, #059669); color: #fff; }
+.portal-librarian .stat-blue { background: linear-gradient(135deg, #60a5fa, #2563eb); color: #fff; }
+.portal-librarian .stat-red { background: linear-gradient(135deg, #fb7185, #e11d48); color: #fff; }
+
+/* Administrateur */
+.portal-admin {
+    --portal-bg: #f1f5f9;
+    --portal-sidebar: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);
+    --portal-accent: #4f46e5;
+    --portal-accent-dark: #4338ca;
+}
+
+.portal-admin .role-pill {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.portal-admin .portal-welcome {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #fff;
+}
+
+.portal-admin .stat-indigo { background: linear-gradient(135deg, #818cf8, #4f46e5); color: #fff; }
+.portal-admin .stat-emerald { background: linear-gradient(135deg, #34d399, #059669); color: #fff; }
+.portal-admin .stat-orange { background: linear-gradient(135deg, #fb923c, #ea580c); color: #fff; }
+.portal-admin .stat-rose { background: linear-gradient(135deg, #f472b6, #db2777); color: #fff; }
+
+@media (max-width: 991px) {
+    .portal-sidebar {
+        width: 100%;
+        min-height: auto;
+        position: relative;
+    }
+
+    .portal-main {
+        margin-left: 0;
+    }
+
+    .portal-body {
+        flex-direction: column;
+    }
+}

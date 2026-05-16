@@ -1,9 +1,11 @@
+# library/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import date, timedelta
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+# ========== MODÈLES PRINCIPAUX ==========
 
 class User(AbstractUser):
     """
@@ -53,7 +55,7 @@ class Category(models.Model):
 
 class Author(models.Model):
     """
-    Author model
+    Author model - UNE SEULE DÉFINITION
     """
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -65,11 +67,12 @@ class Author(models.Model):
     
     class Meta:
         verbose_name_plural = "Authors"
+        ordering = ['last_name', 'first_name']
 
 
 class Book(models.Model):
     """
-    Book model with all necessary fields
+    Book model - UNE SEULE DÉFINITION avec ManyToMany vers Author
     """
     title = models.CharField(max_length=200)
     authors = models.ManyToManyField(Author, related_name='books')
@@ -96,6 +99,10 @@ class Book(models.Model):
     @property
     def borrowed_copies(self):
         return self.total_copies - self.available_copies
+    
+    def get_authors_names(self):
+        """Retourne les noms des auteurs"""
+        return ", ".join([author.__str__() for author in self.authors.all()])
     
     class Meta:
         ordering = ['-added_date']
@@ -164,7 +171,6 @@ class Borrowing(models.Model):
     
     class Meta:
         ordering = ['-borrow_date']
-        unique_together = ['user', 'book', 'borrow_date']
 
 
 class Reservation(models.Model):
@@ -260,7 +266,7 @@ class Reclamation(models.Model):
         Mark reclamation as resolved
         """
         self.status = 'resolved'
-        self.resolved_date = models.timezone.now()
+        self.resolved_date = timezone.now()
         if response:
             self.admin_response = response
         self.save()

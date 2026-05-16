@@ -19,10 +19,35 @@ class UserRegistrationForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        labels = {
+            'username': "Nom d'utilisateur",
+            'first_name': 'Prénom',
+            'last_name': 'Nom',
+            'email': 'Email',
+            'phone': 'Téléphone',
+            'address': 'Adresse',
+            'password1': 'Mot de passe',
+            'password2': 'Confirmation du mot de passe',
+        }
         for field_name, field in self.fields.items():
+            if field_name in labels:
+                field.label = labels[field_name]
             field.widget.attrs['class'] = 'form-control'
             if field_name == 'address':
                 field.widget.attrs['rows'] = 3
+        self.fields['password1'].help_text = 'Minimum 8 caractères.'
+        if self.is_bound and self.errors:
+            for field_name in self.errors:
+                if field_name in self.fields:
+                    css = self.fields[field_name].widget.attrs.get('class', 'form-control')
+                    self.fields[field_name].widget.attrs['class'] = f'{css} is-invalid'
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.user_type = 'member'
+        if commit:
+            user.save()
+        return user
 
 
 class UserLoginForm(forms.Form):

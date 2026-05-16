@@ -1,0 +1,126 @@
+<!-- library/templates/library/librarian/book_list.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des livres - Bibliothèque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-add {
+            background-color: #28a745;
+        }
+        .btn-add:hover {
+            background-color: #1e7e34;
+        }
+        .no-books {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .actions a {
+            margin-right: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Liste des livres</h1>
+        
+        <div>
+            <a href="{% url 'book_create' %}" class="btn btn-add">➕ Ajouter un livre</a>
+            <a href="{% url 'dashboard' %}" class="btn">🏠 Retour au tableau de bord</a>
+        </div>
+
+        {% if books %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>ISBN</th>
+                    <th>Date de publication</th>
+                    <th>Disponible</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.publication_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if book.is_available %}
+                        <span style="color: green;">✓ Disponible</span>
+                        {% else %}
+                        <span style="color: red;">✗ Emprunté</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+                        <a href="{% url 'book_detail' book.id %}">👁️ Voir</a>
+                        <a href="{% url 'book_edit' book.id %}">✏️ Modifier</a>
+                        <a href="{% url 'book_delete' book.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-books">
+            <p>Aucun livre n'est enregistré dans la bibliothèque.</p>
+            <a href="{% url 'book_create' %}" class="btn btn-add">Ajouter votre premier livre</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

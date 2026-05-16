@@ -15,7 +15,7 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        
+
                         {% if form.non_field_errors %}
                             <div class="alert alert-danger">
                                 {% for error in form.non_field_errors %}
@@ -23,7 +23,37 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
-                        
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <strong><i class="fas fa-exclamation-triangle"></i> Impossible de créer le compte :</strong>
+                                <ul class="mb-0 mt-2">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>
+                                                {% if field == 'username' %}
+                                                    <strong>Nom d'utilisateur :</strong>
+                                                {% elif field == 'first_name' %}
+                                                    <strong>Prénom :</strong>
+                                                {% elif field == 'last_name' %}
+                                                    <strong>Nom :</strong>
+                                                {% elif field == 'email' %}
+                                                    <strong>Email :</strong>
+                                                {% elif field == 'phone' %}
+                                                    <strong>Téléphone :</strong>
+                                                {% elif field == 'address' %}
+                                                    <strong>Adresse :</strong>
+                                                {% elif field == 'password1' or field == 'password2' %}
+                                                    <strong>Mot de passe :</strong>
+                                                {% endif %}
+                                                {{ error }}
+                                            </li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -56,7 +86,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.username.id_for_label }}" class="form-label">
                                 <i class="fas fa-user-tag"></i> Nom d'utilisateur
@@ -71,7 +101,7 @@
                             {% endif %}
                             <small class="form-text text-muted">Choisissez un nom d'utilisateur unique.</small>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.email.id_for_label }}" class="form-label">
                                 <i class="fas fa-envelope"></i> Email
@@ -85,7 +115,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -93,9 +123,19 @@
                                         <i class="fas fa-lock"></i> Mot de passe
                                     </label>
                                     {{ form.password1 }}
+                                    {% if form.password1.help_text %}
+                                        <small class="form-text text-muted">{{ form.password1.help_text|safe }}</small>
+                                    {% endif %}
                                     {% if form.password1.errors %}
                                         <div class="text-danger">
                                             {% for error in form.password1.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.password2.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.password2.errors %}
                                                 <small>{{ error }}</small>
                                             {% endfor %}
                                         </div>
@@ -108,17 +148,10 @@
                                         <i class="fas fa-lock"></i> Confirmer le mot de passe
                                     </label>
                                     {{ form.password2 }}
-                                    {% if form.password2.errors %}
-                                        <div class="text-danger">
-                                            {% for error in form.password2.errors %}
-                                                <small>{{ error }}</small>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.phone.id_for_label }}" class="form-label">
                                 <i class="fas fa-phone"></i> Téléphone (optionnel)
@@ -132,7 +165,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.address.id_for_label }}" class="form-label">
                                 <i class="fas fa-home"></i> Adresse (optionnelle)
@@ -146,16 +179,16 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-success btn-lg">
                                 <i class="fas fa-user-plus"></i> Créer mon compte
                             </button>
                         </div>
                     </form>
-                    
+
                     <div class="text-center mt-3">
-                        <p>Déjà un compte ? 
+                        <p>Déjà un compte ?
                             <a href="{% url 'login' %}" class="text-success">
                                 <i class="fas fa-sign-in-alt"></i> Se connecter
                             </a>

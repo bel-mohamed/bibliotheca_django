@@ -9,6 +9,92 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
+
+from .models import Book
+
+@login_required
+def book_list(request):
+    """Vue pour afficher la liste des livres"""
+    books = Book.objects.all().order_by('title')  # Trier par titre
+    context = {
+        'books': books,
+        'total_books': books.count(),
+    }
+    return render(request, 'library/librarian/book_list.html', context)
+
+
+# library/views.py
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Book
+from .forms import BookForm
+
+@login_required
+def book_list(request):
+    """Vue pour afficher la liste des livres"""
+    books = Book.objects.all().order_by('title')
+    context = {
+        'books': books,
+        'total_books': books.count(),
+    }
+    return render(request, 'library/librarian/book_list.html', context)
+
+@login_required
+def book_detail(request, pk):
+    """Vue pour afficher les détails d'un livre"""
+    book = get_object_or_404(Book, pk=pk)
+    return render(request, 'library/librarian/book_detail.html', {'book': book})
+
+@login_required
+def book_create(request):
+    """Vue pour créer un nouveau livre"""
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Livre ajouté avec succès!')
+            return redirect('book_list')
+    else:
+        form = BookForm()
+    return render(request, 'library/librarian/book_form.html', {'form': form, 'title': 'Ajouter un livre'})
+
+@login_required
+def book_edit(request, pk):
+    """Vue pour modifier un livre existant"""
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Livre modifié avec succès!')
+            return redirect('book_list')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'library/librarian/book_form.html', {'form': form, 'title': 'Modifier le livre'})
+
+@login_required
+def book_delete(request, pk):
+    """Vue pour supprimer un livre"""
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        book.delete()
+        messages.success(request, 'Livre supprimé avec succès!')
+        return redirect('book_list')
+    return render(request, 'library/librarian/book_confirm_delete.html', {'book': book})
+
+@login_required
+def dashboard(request):
+    """Vue pour le tableau de bord"""
+    total_books = Book.objects.count()
+    available_books = Book.objects.filter(is_available=True).count()
+    borrowed_books = Book.objects.filter(is_available=False).count()
+    context = {
+        'total_books': total_books,
+        'available_books': available_books,
+        'borrowed_books': borrowed_books,
+    }
+    return render(request, 'library/librarian/dashboard.html', context)
 from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation
 from .forms import (
     UserRegistrationForm, UserLoginForm, BookForm, AuthorForm, 
@@ -22,8 +108,8 @@ def is_admin(user):
 
 
 def is_librarian(user):
-    """Check if user is a librarian"""
-    return user.is_authenticated and user.is_librarian
+    """Check if user is a librarian or administrator"""
+    return user.is_authenticated and (user.is_librarian or user.is_admin)
 
 
 def is_member(user):
@@ -49,12 +135,17 @@ def user_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            if user:
-                login(request, user)
-                messages.success(request, f'Bienvenue, {user.username}!')
-                return redirect('dashboard')
+            if user is not None:
+                if not user.is_active:
+                    messages.error(request, 'Ce compte est désactivé.')
+                else:
+                    login(request, user)
+                    messages.success(request, f'Bienvenue, {user.username}!')
+                    return redirect('dashboard')
             else:
                 messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect.')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
     else:
         form = UserLoginForm()
     
@@ -69,9 +160,7 @@ def user_register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.user_type = 'member'
-            user.save()
+            user = form.save()
             messages.success(request, 'Compte créé avec succès! Vous pouvez maintenant vous connecter.')
             return redirect('login')
     else:

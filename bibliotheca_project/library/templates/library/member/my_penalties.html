@@ -1,0 +1,44 @@
+{% extends 'library/layouts/base_etudiant.html' %}
+
+{% block title %}Mes pénalités{% endblock %}
+{% block page_title %}Mes pénalités{% endblock %}
+
+{% block content %}
+<div class="card portal-card">
+    <div class="card-header"><i class="fas fa-receipt"></i> Historique des pénalités</div>
+    <div class="card-body">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Livre</th>
+                        <th>Montant</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for penalty in page_obj %}
+                    <tr>
+                        <td>{{ penalty.borrowing.book.title }}</td>
+                        <td>{{ penalty.amount }} €</td>
+                        <td>{{ penalty.created_date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if penalty.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">En attente</span>
+                            {% else %}
+                                <span class="badge bg-success">Payée</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">Aucune pénalité enregistrée.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

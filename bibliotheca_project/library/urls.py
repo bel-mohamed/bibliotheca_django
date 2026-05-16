@@ -3,10 +3,15 @@ from . import views
 
 app_name = 'library'
 
+
+
+app_name = 'library'
+
 urlpatterns = [
     # ==================== ADMIN URLS ====================
     path('admin/', views.admin_dashboard, name='admin_dashboard'),
-    
+
+      
     # ==================== LIBRARIAN URLS ====================
     path('librarian/', views.librarian_dashboard, name='librarian_dashboard'),
     
