@@ -13,13 +13,13 @@
 </head>
 <body class="portal-body portal-librarian">
     <aside class="portal-sidebar">
-        <a href="{% url 'library:librarian_dashboard' %}" class="portal-sidebar-brand">
+        <a href="{% url portal_dashboard_url %}" class="portal-sidebar-brand">
             <div class="brand-title"><i class="fas fa-book-open"></i> Espace Bibliothécaire</div>
             <div class="brand-sub">Gestion du fonds</div>
         </a>
         <nav class="portal-nav">
             <div class="portal-nav-section">Accueil</div>
-            <a href="{% url 'library:librarian_dashboard' %}" class="portal-nav-link {% if request.resolver_match.url_name == 'librarian_dashboard' %}active{% endif %}">
+            <a href="{% url portal_dashboard_url %}" class="portal-nav-link {% if request.resolver_match.url_name == portal_dashboard_url_name %}active{% endif %}">
                 <i class="fas fa-tachometer-alt"></i> Tableau de bord
             </a>
             <div class="portal-nav-section">Catalogue</div>

@@ -1,0 +1,179 @@
+<!-- library/templates/library/librarian/penalty_mark_paid.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marquer pénalité payée - Bibliothèque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        h2 {
+            font-size: 1.1rem;
+            color: #555;
+            margin-top: 24px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        .info-value {
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .totals-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .totals-box h2 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #ffe69c;
+        }
+        .total-row:last-child {
+            border-bottom: none;
+            font-size: 1.15rem;
+            font-weight: bold;
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            margin-right: 8px;
+        }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #1e7e34; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #545b62; }
+        .highlight-amount {
+            color: #dc3545;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Marquer la pénalité comme payée</h1>
+
+        <h2>Pénalité en cours</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Étudiant</div>
+                <div class="info-value">{{ penalty.user.get_full_name|default:penalty.user.username }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Identifiant</div>
+                <div class="info-value">{{ penalty.user.username }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Livre</div>
+                <div class="info-value">{{ penalty.borrowing.book.title }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Emprunt</div>
+                <div class="info-value">#{{ penalty.borrowing.id }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Montant de cette pénalité</div>
+                <div class="info-value highlight-amount">{{ penalty.amount }} €</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Date</div>
+                <div class="info-value">{{ penalty.created_date|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="totals-box">
+            <h2>Total des pénalités de l'étudiant</h2>
+            <div class="total-row">
+                <span>En attente ({{ student_totals.count_pending }})</span>
+                <span>{{ student_totals.total_pending }} €</span>
+            </div>
+            <div class="total-row">
+                <span>Déjà payées ({{ student_totals.count_paid }})</span>
+                <span>{{ student_totals.total_paid }} €</span>
+            </div>
+            <div class="total-row">
+                <span>Total général</span>
+                <span>{{ student_totals.total_all }} €</span>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="payment_method">Mode de paiement</label>
+                <select name="payment_method" id="payment_method" required>
+                    <option value="cash">Espèces</option>
+                    <option value="card">Carte bancaire</option>
+                    <option value="transfer">Virement</option>
+                    <option value="check">Chèque</option>
+                </select>
+            </div>
+            <div style="margin-top: 24px;">
+                <button type="submit" class="btn btn-success">Confirmer le paiement</button>
+                <a href="{% url 'library:penalty_list' %}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,9 +1,15 @@
 # library/models.py
+from decimal import Decimal
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import date, timedelta
 from django.core.validators import MinValueValidator, MaxValueValidator
+
+# Délai d'emprunt démo (30 secondes) et tarif par période de retard
+BORROWING_DUE_SECONDS = 30
+PENALTY_RATE_PER_PERIOD = Decimal('0.50')
 
 # ========== MODÈLES PRINCIPAUX ==========
 
@@ -121,7 +127,7 @@ class Borrowing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='borrowings')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='borrowings')
     borrow_date = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateField()
+    due_date = models.DateTimeField()
     return_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     penalty_amount = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
@@ -135,36 +141,57 @@ class Borrowing(models.Model):
     def is_overdue(self):
         if self.status == 'returned':
             return False
-        return date.today() > self.due_date
-    
+        return timezone.now() > self.due_date
+
     @property
-    def days_overdue(self):
+    def seconds_overdue(self):
         if not self.is_overdue:
             return 0
-        return (date.today() - self.due_date).days
-    
+        return int((timezone.now() - self.due_date).total_seconds())
+
+    @property
+    def days_overdue(self):
+        """Nombre de périodes de 30 secondes en retard."""
+        if not self.is_overdue:
+            return 0
+        return max(1, (self.seconds_overdue + BORROWING_DUE_SECONDS - 1) // BORROWING_DUE_SECONDS)
+
     def calculate_penalty(self):
-        """
-        Calculate penalty based on days overdue
-        Penalty rate: 0.50€ per day overdue
-        """
+        """Calcule la pénalité : 0,50 € par période de 30 secondes de retard."""
         if self.is_overdue:
-            penalty_rate = 0.50  # 0.50€ per day
-            self.penalty_amount = self.days_overdue * penalty_rate
-            if self.days_overdue > 0:
-                self.status = 'overdue'
+            self.penalty_amount = self.days_overdue * PENALTY_RATE_PER_PERIOD
+            self.status = 'overdue'
         else:
-            self.penalty_amount = 0.00
+            self.penalty_amount = Decimal('0.00')
         return self.penalty_amount
-    
+
+    def ensure_penalty_record(self):
+        """Crée ou met à jour l'enregistrement Penalty lié à cet emprunt."""
+        if self.penalty_amount <= 0:
+            return None
+        penalty, created = Penalty.objects.get_or_create(
+            borrowing=self,
+            defaults={
+                'user': self.user,
+                'amount': self.penalty_amount,
+                'status': 'pending',
+            },
+        )
+        if not created and penalty.status == 'pending':
+            penalty.amount = self.penalty_amount
+            penalty.user = self.user
+            penalty.save(update_fields=['amount', 'user'])
+        return penalty
+
     def return_book(self):
         """
         Mark book as returned and update availability
         """
         if self.status != 'returned':
             self.return_date = timezone.now()
-            self.status = 'returned'
             self.calculate_penalty()
+            self.status = 'returned'
+            self.ensure_penalty_record()
             self.book.available_copies += 1
             self.book.save()
             self.save()

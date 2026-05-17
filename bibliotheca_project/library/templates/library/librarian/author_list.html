@@ -71,8 +71,10 @@
         <h1>✍️ Liste des auteurs</h1>
         
         <div>
+            {% if can_manage_authors %}
             <a href="{% url 'library:author_add' %}" class="btn btn-add">➕ Ajouter un auteur</a>
-            <a href="{% url 'library:librarian_dashboard' %}" class="btn">🏠 Retour au tableau de bord</a>
+            {% endif %}
+            <a href="{% url portal_dashboard_url %}" class="btn">🏠 Retour au tableau de bord</a>
         </div>
 
         {% if authors %}
@@ -102,8 +104,12 @@
                     </td>
                     <td>{{ author.books.count }}</td>
                     <td class="actions">
+                        {% if can_manage_authors %}
                         <a href="{% url 'library:author_edit' author.id %}">✏️ Modifier</a>
                         <a href="{% url 'library:author_delete' author.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+                        {% else %}
+                        —
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -112,7 +118,9 @@
         {% else %}
         <div style="text-align: center; padding: 40px; color: #666;">
             <p>Aucun auteur n'est enregistré.</p>
+            {% if can_manage_authors %}
             <a href="{% url 'library:author_add' %}" class="btn btn-add">Ajouter votre premier auteur</a>
+            {% endif %}
         </div>
         {% endif %}
     </div>

@@ -34,7 +34,6 @@
                                         <th>Date de retour</th>
                                         <th>Statut</th>
                                         <th>Pénalité</th>
-                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,7 +50,7 @@
                                                 {{ borrowing.return_date|date:"d/m/Y" }}
                                             {% else %}
                                                 <span class="text-warning">Non retourné</span><br>
-                                                <small>Échéance: {{ borrowing.due_date|date:"d/m/Y" }}</small>
+                                                <small>Échéance: {{ borrowing.due_date|date:"d/m/Y H:i:s" }}</small>
                                             {% endif %}
                                         </td>
                                         <td>
@@ -70,14 +69,6 @@
                                                 <span class="text-danger">{{ borrowing.penalty_amount }}€</span>
                                             {% else %}
                                                 -
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if not borrowing.return_date %}
-                                                <a href="{% url 'library:return_book_member' borrowing.id %}"
-                                                   class="btn btn-sm btn-outline-success">
-                                                    <i class="fas fa-undo"></i> Retourner
-                                                </a>
                                             {% endif %}
                                         </td>
                                     </tr>

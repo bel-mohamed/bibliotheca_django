@@ -1,7 +1,7 @@
 {% extends 'library/layouts/base_etudiant.html' %}
 
 {% block title %}Tableau de bord{% endblock %}
-{% block page_title %}Mon espace étudiant{% endblock %}
+{% block page_title %}Mon espace ?tudiant{% endblock %}
 
 {% block content %}
 <div class="card portal-welcome mb-4">
@@ -11,7 +11,7 @@
                 <h3 class="mb-2">Bonjour, {{ user.first_name|default:user.username }} !</h3>
                 <p class="mb-0 opacity-90">
                     Membre depuis le {{ user.membership_date|date:"d F Y" }}
-                    {% if can_borrow %} — Vous pouvez encore emprunter des livres.{% endif %}
+                    {% if can_borrow %} ? Vous pouvez encore emprunter des livres.{% endif %}
                 </p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -48,15 +48,15 @@
         <div class="card portal-stat-card stat-sky">
             <div class="card-body text-center">
                 <div class="portal-stat-value">{{ reservations.count }}</div>
-                <div>Réservations</div>
+                <div>R?servations</div>
             </div>
         </div>
     </div>
     <div class="col-md-3 col-6">
         <div class="card portal-stat-card stat-rose">
             <div class="card-body text-center">
-                <div class="portal-stat-value">{{ pending_penalties.count }}</div>
-                <div>Pénalités</div>
+                <div class="portal-stat-value">{{ penalty_totals.total_pending }} &euro;</div>
+                <div>Pénalités à payer</div>
             </div>
         </div>
     </div>
@@ -76,9 +76,8 @@
                         <thead>
                             <tr>
                                 <th>Livre</th>
-                                <th>Retour prévu</th>
+                                <th>Retour pr?vu</th>
                                 <th>Statut</th>
-                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -86,9 +85,9 @@
                             <tr>
                                 <td>{{ borrowing.book.title }}</td>
                                 <td>
-                                    {{ borrowing.due_date|date:"d/m/Y" }}
+                                    {{ borrowing.due_date|date:"d/m/Y H:i:s" }}
                                     {% if borrowing.is_overdue %}
-                                        <br><small class="text-danger">{{ borrowing.days_overdue }} j. de retard</small>
+                                        <br><small class="text-danger">{{ borrowing.seconds_overdue }} s de retard ({{ borrowing.penalty_amount }} ?)</small>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -97,9 +96,6 @@
                                     {% else %}
                                         <span class="badge bg-success">Actif</span>
                                     {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'library:return_book_member' borrowing.pk %}" class="btn btn-sm btn-outline-warning">Retourner</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -114,12 +110,12 @@
     </div>
     <div class="col-lg-4">
         <div class="card portal-card portal-action-grid">
-            <div class="card-header"><i class="fas fa-bolt"></i> Accès rapide</div>
+            <div class="card-header"><i class="fas fa-bolt"></i> Acc?s rapide</div>
             <div class="card-body d-grid gap-2">
                 <a href="{% url 'library:book_search' %}" class="btn btn-success"><i class="fas fa-search"></i> Catalogue</a>
                 <a href="{% url 'library:my_borrowings' %}" class="btn btn-outline-success"><i class="fas fa-book-reader"></i> Mes emprunts</a>
-                <a href="{% url 'library:my_reservations' %}" class="btn btn-outline-info"><i class="fas fa-bookmark"></i> Réservations</a>
-                <a href="{% url 'library:create_reclamation' %}" class="btn btn-outline-secondary"><i class="fas fa-comment"></i> Nouvelle réclamation</a>
+                <a href="{% url 'library:my_reservations' %}" class="btn btn-outline-info"><i class="fas fa-bookmark"></i> R?servations</a>
+                <a href="{% url 'library:create_reclamation' %}" class="btn btn-outline-secondary"><i class="fas fa-comment"></i> Nouvelle r?clamation</a>
             </div>
         </div>
     </div>

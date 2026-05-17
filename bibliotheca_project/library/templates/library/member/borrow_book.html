@@ -103,8 +103,8 @@
             
             <div class="alert alert-info" role="alert">
                 <i class="fas fa-info-circle"></i> 
-                Durée d'emprunt: <strong>{{ borrowing_period }} jours</strong><br>
-                Date de retour prévue: <strong>{{ due_date|date:"d/m/Y" }}</strong>
+                Durée d'emprunt: <strong>{{ borrowing_period }} secondes</strong><br>
+                Date de retour prévue: <strong>{{ due_date|date:"d/m/Y H:i:s" }}</strong>
             </div>
             
             <form method="post">

@@ -69,7 +69,6 @@ urlpatterns = [
     
     # Borrowing Actions
     path('books/<int:pk>/borrow/', views.borrow_book, name='borrow_book'),
-    path('borrowings/<int:pk>/return/', views.return_book, name='return_book_member'),
     path('my-borrowings/', views.my_borrowings, name='my_borrowings'),
     
     # Reservations

@@ -4,6 +4,33 @@
 {% block page_title %}Mes pénalités{% endblock %}
 
 {% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card portal-stat-card stat-rose h-100">
+            <div class="card-body text-center">
+                <div class="portal-stat-value">{{ penalty_totals.total_pending }} €</div>
+                <div>À payer ({{ penalty_totals.count_pending }})</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card portal-stat-card stat-emerald h-100">
+            <div class="card-body text-center">
+                <div class="portal-stat-value">{{ penalty_totals.total_paid }} €</div>
+                <div>Payées ({{ penalty_totals.count_paid }})</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card portal-stat-card stat-indigo h-100">
+            <div class="card-body text-center">
+                <div class="portal-stat-value">{{ penalty_totals.total_all }} €</div>
+                <div>Total général</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card portal-card">
     <div class="card-header"><i class="fas fa-receipt"></i> Historique des pénalités</div>
     <div class="card-body">
@@ -23,12 +50,14 @@
                     <tr>
                         <td>{{ penalty.borrowing.book.title }}</td>
                         <td>{{ penalty.amount }} €</td>
-                        <td>{{ penalty.created_date|date:"d/m/Y" }}</td>
+                        <td>{{ penalty.created_date|date:"d/m/Y H:i" }}</td>
                         <td>
                             {% if penalty.status == 'pending' %}
                                 <span class="badge bg-warning text-dark">En attente</span>
-                            {% else %}
+                            {% elif penalty.status == 'paid' %}
                                 <span class="badge bg-success">Payée</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ penalty.get_status_display }}</span>
                             {% endif %}
                         </td>
                     </tr>

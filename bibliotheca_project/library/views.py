@@ -4,12 +4,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q, Count, Sum
 from django.utils import timezone
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from django.http import JsonResponse, HttpResponseForbidden
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
-from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation
+from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation, BORROWING_DUE_SECONDS
+from .services import sync_penalties, get_penalty_totals
 from .forms import (
     UserRegistrationForm, UserLoginForm, BookForm, AuthorForm, 
     CategoryForm, BorrowingForm, UserEditForm, SearchForm
@@ -107,6 +108,7 @@ def dashboard(request):
 @user_passes_test(is_admin)
 def admin_dashboard(request):
     """Admin dashboard with system-wide statistics"""
+    sync_penalties()
     context = {
         'total_users': User.objects.count(),
         'total_admins': User.objects.filter(user_type='admin').count(),
@@ -130,6 +132,7 @@ def admin_dashboard(request):
 @user_passes_test(is_librarian)
 def librarian_dashboard(request):
     """Librarian dashboard with statistics"""
+    sync_penalties()
     context = {
         'total_books': Book.objects.count(),
         'total_members': User.objects.filter(user_type='member').count(),
@@ -286,7 +289,7 @@ def author_list(request):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def author_add(request):
     """Add a new author"""
     if request.method == 'POST':
@@ -304,7 +307,7 @@ def author_add(request):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def author_edit(request, pk):
     """Edit an existing author"""
     author = get_object_or_404(Author, pk=pk)
@@ -322,7 +325,7 @@ def author_edit(request, pk):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def author_delete(request, pk):
     """Delete an author"""
     author = get_object_or_404(Author, pk=pk)
@@ -511,8 +514,7 @@ def borrowing_create(request):
                 messages.error(request, f'L\'utilisateur "{borrowing.user.username}" a atteint la limite d\'emprunts.')
                 return render(request, 'library/librarian/borrowing_form.html', {'form': form})
             
-            # Set due date (14 days from now)
-            borrowing.due_date = date.today() + timedelta(days=14)
+            borrowing.due_date = timezone.now() + timedelta(seconds=BORROWING_DUE_SECONDS)
             borrowing.save()
             
             # Update book availability
@@ -532,8 +534,9 @@ def borrowing_create(request):
 def borrowing_return(request, pk):
     """Return a borrowed book"""
     borrowing = get_object_or_404(Borrowing, pk=pk)
-    
+
     if request.method == 'POST':
+        sync_penalties()
         borrowing.return_book()
         messages.success(request, f'Livre "{borrowing.book.title}" retourné avec succès!')
         
@@ -560,12 +563,16 @@ def borrowing_detail(request, pk):
 @user_passes_test(is_librarian)
 def penalty_list(request):
     """List all penalties"""
+    sync_penalties()
     penalties = Penalty.objects.all().order_by('-created_date')
     paginator = Paginator(penalties, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    return render(request, 'library/librarian/penalty_list.html', {'page_obj': page_obj})
+
+    return render(request, 'library/librarian/penalty_list.html', {
+        'page_obj': page_obj,
+        'penalties': page_obj,
+    })
 
 
 @login_required
@@ -573,14 +580,18 @@ def penalty_list(request):
 def penalty_mark_paid(request, pk):
     """Mark a penalty as paid"""
     penalty = get_object_or_404(Penalty, pk=pk)
-    
+
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method', 'cash')
         penalty.mark_as_paid(payment_method)
         messages.success(request, f'Pénalité de {penalty.amount}€ marquée comme payée!')
         return redirect('library:penalty_list')
-    
-    return render(request, 'library/librarian/penalty_mark_paid.html', {'penalty': penalty})
+
+    student_totals = get_penalty_totals(penalty.user)
+    return render(request, 'library/librarian/penalty_mark_paid.html', {
+        'penalty': penalty,
+        'student_totals': student_totals,
+    })
 
 
 # ==================== REPORTS (LIBRARIAN) ====================
@@ -589,9 +600,13 @@ def penalty_mark_paid(request, pk):
 @user_passes_test(is_librarian)
 def report_overdue_books(request):
     """Report of overdue books"""
+    sync_penalties()
     overdue_borrowings = Borrowing.objects.filter(status='overdue').order_by('due_date')
-    
-    return render(request, 'library/librarian/report_overdue.html', {'overdue_borrowings': overdue_borrowings})
+
+    return render(request, 'library/librarian/report_overdue.html', {
+        'overdue_borrowings': overdue_borrowings,
+        'overdue_count': overdue_borrowings.count(),
+    })
 
 
 @login_required
@@ -634,6 +649,7 @@ def report_active_members(request):
 @user_passes_test(is_member)
 def member_dashboard(request):
     """Member dashboard with personal information"""
+    sync_penalties()
     user = request.user
     active_borrowings = Borrowing.objects.filter(
         user=user, 
@@ -641,12 +657,14 @@ def member_dashboard(request):
     )
     overdue_borrowings = active_borrowings.filter(status='overdue')
     pending_penalties = Penalty.objects.filter(user=user, status='pending')
+    penalty_totals = get_penalty_totals(user)
     reservations = Reservation.objects.filter(user=user, is_active=True)
-    
+
     context = {
         'active_borrowings': active_borrowings,
         'overdue_borrowings': overdue_borrowings,
         'pending_penalties': pending_penalties,
+        'penalty_totals': penalty_totals,
         'reservations': reservations,
         'can_borrow': active_borrowings.count() < 5,
     }
@@ -731,7 +749,7 @@ def book_detail_member(request, pk):
 def my_borrowings(request):
     """View member's borrowing history"""
     borrowings = Borrowing.objects.filter(user=request.user).order_by('-borrow_date')
-    paginator = Paginator(borrowings, 20)
+    paginator = Paginator(borrowings, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -776,7 +794,7 @@ def borrow_book(request, pk):
         borrowing = Borrowing.objects.create(
             user=user,
             book=book,
-            due_date=date.today() + timedelta(days=14)
+            due_date=timezone.now() + timedelta(seconds=BORROWING_DUE_SECONDS)
         )
         
         # Update book availability
@@ -788,27 +806,9 @@ def borrow_book(request, pk):
     
     return render(request, 'library/member/borrow_book.html', {
         'book': book,
-        'borrowing_period': 14,
-        'due_date': date.today() + timedelta(days=14)
+        'borrowing_period': BORROWING_DUE_SECONDS,
+        'due_date': timezone.now() + timedelta(seconds=BORROWING_DUE_SECONDS),
     })
-
-
-@login_required
-@user_passes_test(is_member)
-def return_book(request, pk):
-    """Return a borrowed book (member request)"""
-    borrowing = get_object_or_404(Borrowing, pk=pk, user=request.user)
-    
-    if request.method == 'POST':
-        borrowing.return_book()
-        messages.success(request, f'Livre "{borrowing.book.title}" retourné avec succès!')
-        
-        if borrowing.penalty_amount > 0:
-            messages.warning(request, f'Une pénalité de {borrowing.penalty_amount}€ a été appliquée.')
-        
-        return redirect('library:my_borrowings')
-    
-    return render(request, 'library/member/return_book.html', {'borrowing': borrowing})
 
 
 @login_required
@@ -879,12 +879,17 @@ def cancel_reservation(request, pk):
 @user_passes_test(is_member)
 def my_penalties(request):
     """View member's penalties"""
+    sync_penalties()
     penalties = Penalty.objects.filter(user=request.user).order_by('-created_date')
-    paginator = Paginator(penalties, 20)
+    paginator = Paginator(penalties, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    return render(request, 'library/member/my_penalties.html', {'page_obj': page_obj})
+    penalty_totals = get_penalty_totals(request.user)
+
+    return render(request, 'library/member/my_penalties.html', {
+        'page_obj': page_obj,
+        'penalty_totals': penalty_totals,
+    })
 
 
 @login_required

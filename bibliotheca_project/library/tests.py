@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 from .models import Book, Author, Category, Borrowing, Reservation, Penalty
+from .services import sync_penalties, get_penalty_totals
 
 User = get_user_model()
 
@@ -164,7 +165,7 @@ class BorrowingModelTest(TestCase):
         borrowing = Borrowing.objects.create(
             user=self.user,
             book=self.book,
-            due_date=date.today() + timedelta(days=14)
+            due_date=timezone.now() + timedelta(days=14)
         )
         self.assertEqual(borrowing.user, self.user)
         self.assertEqual(borrowing.book, self.book)
@@ -176,7 +177,7 @@ class BorrowingModelTest(TestCase):
         borrowing = Borrowing.objects.create(
             user=self.user,
             book=self.book,
-            due_date=date.today() - timedelta(days=5)
+            due_date=timezone.now() - timedelta(seconds=150)
         )
         self.assertTrue(borrowing.is_overdue)
         self.assertEqual(borrowing.days_overdue, 5)
@@ -187,21 +188,69 @@ class BorrowingModelTest(TestCase):
         borrowing = Borrowing.objects.create(
             user=self.user,
             book=self.book,
-            due_date=date.today() - timedelta(days=3)
+            due_date=timezone.now() - timedelta(seconds=90)
         )
         penalty = borrowing.calculate_penalty()
-        expected_penalty = 3 * 0.50  # 3 days * 0.50€ per day
+        expected_penalty = 3 * 0.50  # 3 périodes de 30 s * 0,50 €
         self.assertEqual(float(penalty), expected_penalty)
-    
+
+    def test_penalty_totals_for_student(self):
+        """Test penalty totals calculation for a student"""
+        Penalty.objects.create(
+            user=self.user,
+            borrowing=Borrowing.objects.create(
+                user=self.user,
+                book=self.book,
+                due_date=timezone.now() + timedelta(days=1),
+            ),
+            amount=1.50,
+            status='pending',
+        )
+        Penalty.objects.create(
+            user=self.user,
+            borrowing=Borrowing.objects.create(
+                user=self.user,
+                book=Book.objects.create(
+                    title='Other',
+                    isbn='1111111111111',
+                    publisher='P',
+                    publication_date=date(2020, 1, 1),
+                    category=self.category,
+                    pages=100,
+                    language='French',
+                    total_copies=1,
+                    available_copies=1,
+                ),
+                due_date=timezone.now() + timedelta(days=1),
+            ),
+            amount=0.50,
+            status='paid',
+        )
+        totals = get_penalty_totals(self.user)
+        self.assertEqual(float(totals['total_pending']), 1.50)
+        self.assertEqual(float(totals['total_paid']), 0.50)
+        self.assertEqual(float(totals['total_all']), 2.00)
+
+    def test_sync_penalties_creates_record(self):
+        """Test that sync_penalties creates a Penalty for overdue borrowings"""
+        Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            due_date=timezone.now() - timedelta(seconds=60),
+        )
+        sync_penalties()
+        self.assertEqual(Penalty.objects.filter(user=self.user).count(), 1)
+        self.assertGreater(float(Penalty.objects.get(user=self.user).amount), 0)
+
     def test_return_book(self):
         """Test returning a book"""
         borrowing = Borrowing.objects.create(
             user=self.user,
             book=self.book,
-            due_date=date.today() + timedelta(days=14)
+            due_date=timezone.now() + timedelta(days=14)
         )
         initial_available = self.book.available_copies
-        
+
         borrowing.return_book()
         
         self.assertEqual(borrowing.status, 'returned')
@@ -371,7 +420,7 @@ class ViewTest(TestCase):
             Borrowing.objects.create(
                 user=self.user,
                 book=book,
-                due_date=date.today() + timedelta(days=14)
+                due_date=timezone.now() + timedelta(days=14)
             )
         
         # Try to borrow a 6th book
@@ -477,9 +526,11 @@ class IntegrationTest(TestCase):
         borrowing = Borrowing.objects.get(user=self.user, book=book)
         self.assertEqual(borrowing.status, 'active')
         
-        # Return the book
-        response = self.client.post(reverse('return_book_member', kwargs={'pk': borrowing.pk}))
-        self.assertRedirects(response, reverse('my_borrowings'))
+        # Return the book (librarian only)
+        self.client.logout()
+        self.client.login(username='librarian', password='libpass123')
+        response = self.client.post(reverse('borrowing_return', kwargs={'pk': borrowing.pk}))
+        self.assertRedirects(response, reverse('borrowing_list'))
         
         # Check book was returned
         borrowing.refresh_from_db()

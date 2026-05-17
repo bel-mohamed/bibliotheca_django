@@ -30,6 +30,9 @@
             <a href="{% url 'library:book_list' %}" class="portal-nav-link {% if 'book' in request.resolver_match.url_name %}active{% endif %}">
                 <i class="fas fa-book"></i> Livres
             </a>
+            <a href="{% url 'library:author_list' %}" class="portal-nav-link {% if 'author' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-pen-fancy"></i> Auteurs
+            </a>
             <a href="{% url 'library:borrowing_list' %}" class="portal-nav-link {% if 'borrowing' in request.resolver_match.url_name %}active{% endif %}">
                 <i class="fas fa-exchange-alt"></i> Emprunts
             </a>
