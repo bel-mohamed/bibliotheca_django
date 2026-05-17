@@ -1,0 +1,128 @@
+<!-- library/templates/library/librarian/borrowing_return.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retour d'emprunt - Bibliothèque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .info-row {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #333;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+        }
+        .btn-cancel:hover {
+            background-color: #545b62;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Retour d'emprunt</h1>
+        
+        <div class="info-box">
+            <div class="info-row">
+                <span class="info-label">Utilisateur:</span> {{ borrowing.user.username }}
+            </div>
+            <div class="info-row">
+                <span class="info-label">Livre:</span> {{ borrowing.book.title }}
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date d'emprunt:</span> {{ borrowing.borrow_date|date:"d/m/Y H:i" }}
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date de retour prévue:</span> {{ borrowing.due_date|date:"d/m/Y" }}
+            </div>
+            {% if borrowing.days_overdue > 0 %}
+            <div class="info-row" style="color: #dc3545;">
+                <span class="info-label">Jours de retard:</span> {{ borrowing.days_overdue }}
+            </div>
+            <div class="info-row" style="color: #dc3545;">
+                <span class="info-label">Pénalité:</span> {{ borrowing.penalty_amount }}€
+            </div>
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="notes">Notes (optionnel):</label>
+                <textarea name="notes" id="notes" placeholder="Ajoutez des notes sur le retour...">{{ borrowing.notes }}</textarea>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button type="submit" class="btn btn-success">✅ Confirmer le retour</button>
+                <a href="{% url 'library:borrowing_detail' borrowing.id %}" class="btn btn-cancel">❌ Annuler</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

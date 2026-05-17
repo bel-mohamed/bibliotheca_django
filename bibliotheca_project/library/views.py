@@ -9,92 +9,6 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
 
-
-from .models import Book
-
-@login_required
-def book_list(request):
-    """Vue pour afficher la liste des livres"""
-    books = Book.objects.all().order_by('title')  # Trier par titre
-    context = {
-        'books': books,
-        'total_books': books.count(),
-    }
-    return render(request, 'library/librarian/book_list.html', context)
-
-
-# library/views.py
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Book
-from .forms import BookForm
-
-@login_required
-def book_list(request):
-    """Vue pour afficher la liste des livres"""
-    books = Book.objects.all().order_by('title')
-    context = {
-        'books': books,
-        'total_books': books.count(),
-    }
-    return render(request, 'library/librarian/book_list.html', context)
-
-@login_required
-def book_detail(request, pk):
-    """Vue pour afficher les détails d'un livre"""
-    book = get_object_or_404(Book, pk=pk)
-    return render(request, 'library/librarian/book_detail.html', {'book': book})
-
-@login_required
-def book_create(request):
-    """Vue pour créer un nouveau livre"""
-    if request.method == 'POST':
-        form = BookForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Livre ajouté avec succès!')
-            return redirect('book_list')
-    else:
-        form = BookForm()
-    return render(request, 'library/librarian/book_form.html', {'form': form, 'title': 'Ajouter un livre'})
-
-@login_required
-def book_edit(request, pk):
-    """Vue pour modifier un livre existant"""
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        form = BookForm(request.POST, instance=book)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Livre modifié avec succès!')
-            return redirect('book_list')
-    else:
-        form = BookForm(instance=book)
-    return render(request, 'library/librarian/book_form.html', {'form': form, 'title': 'Modifier le livre'})
-
-@login_required
-def book_delete(request, pk):
-    """Vue pour supprimer un livre"""
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == 'POST':
-        book.delete()
-        messages.success(request, 'Livre supprimé avec succès!')
-        return redirect('book_list')
-    return render(request, 'library/librarian/book_confirm_delete.html', {'book': book})
-
-@login_required
-def dashboard(request):
-    """Vue pour le tableau de bord"""
-    total_books = Book.objects.count()
-    available_books = Book.objects.filter(is_available=True).count()
-    borrowed_books = Book.objects.filter(is_available=False).count()
-    context = {
-        'total_books': total_books,
-        'available_books': available_books,
-        'borrowed_books': borrowed_books,
-    }
-    return render(request, 'library/librarian/dashboard.html', context)
 from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation
 from .forms import (
     UserRegistrationForm, UserLoginForm, BookForm, AuthorForm, 
@@ -251,7 +165,30 @@ def book_add(request):
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
-            book = form.save()
+            book = form.save(commit=False)
+            book.save()
+            
+            # Process authors from text field
+            authors_text = form.cleaned_data.get('authors_text', '')
+            if authors_text:
+                author_names = [name.strip() for name in authors_text.split(',') if name.strip()]
+                for author_name in author_names:
+                    # Try to find existing author or create new one
+                    parts = author_name.split()
+                    if len(parts) >= 2:
+                        first_name = ' '.join(parts[:-1])
+                        last_name = parts[-1]
+                    else:
+                        first_name = author_name
+                        last_name = ''
+                    
+                    author, created = Author.objects.get_or_create(
+                        first_name=first_name,
+                        last_name=last_name,
+                        defaults={'nationality': ''}
+                    )
+                    book.authors.add(author)
+            
             messages.success(request, f'Livre "{book.title}" ajouté avec succès!')
             return redirect('library:book_list')
     else:
@@ -269,11 +206,39 @@ def book_edit(request, pk):
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
-            book = form.save()
+            book = form.save(commit=False)
+            book.save()
+            
+            # Clear existing authors
+            book.authors.clear()
+            
+            # Process authors from text field
+            authors_text = form.cleaned_data.get('authors_text', '')
+            if authors_text:
+                author_names = [name.strip() for name in authors_text.split(',') if name.strip()]
+                for author_name in author_names:
+                    # Try to find existing author or create new one
+                    parts = author_name.split()
+                    if len(parts) >= 2:
+                        first_name = ' '.join(parts[:-1])
+                        last_name = parts[-1]
+                    else:
+                        first_name = author_name
+                        last_name = ''
+                    
+                    author, created = Author.objects.get_or_create(
+                        first_name=first_name,
+                        last_name=last_name,
+                        defaults={'nationality': ''}
+                    )
+                    book.authors.add(author)
+            
             messages.success(request, f'Livre "{book.title}" modifié avec succès!')
             return redirect('library:book_list')
     else:
+        # Pre-populate authors_text with existing authors
         form = BookForm(instance=book)
+        form.fields['authors_text'].initial = ', '.join([str(author) for author in book.authors.all()])
     
     return render(request, 'library/librarian/book_form.html', {'form': form, 'title': 'Modifier un livre'})
 
@@ -317,7 +282,7 @@ def author_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'library/librarian/author_list.html', {'page_obj': page_obj})
+    return render(request, 'library/librarian/author_list.html', {'page_obj': page_obj, 'authors': authors})
 
 
 @login_required
@@ -330,6 +295,8 @@ def author_add(request):
             author = form.save()
             messages.success(request, f'Auteur "{author}" ajouté avec succès!')
             return redirect('library:author_list')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs du formulaire.')
     else:
         form = AuthorForm()
     
@@ -642,13 +609,23 @@ def report_popular_books(request):
 @user_passes_test(is_librarian)
 def report_active_members(request):
     """Report of most active members"""
-    active_members = User.objects.filter(
-        user_type='member'
-    ).annotate(
+    all_members = User.objects.filter(user_type='member')
+    active_count = all_members.filter(is_active_member=True).count()
+    inactive_count = all_members.filter(is_active_member=False).count()
+    total_count = all_members.count()
+    
+    active_members = all_members.annotate(
         borrow_count=Count('borrowings')
     ).order_by('-borrow_count')[:20]
     
-    return render(request, 'library/librarian/report_active_members.html', {'active_members': active_members})
+    context = {
+        'active_members': active_members,
+        'active_count': active_count,
+        'inactive_count': inactive_count,
+        'total_count': total_count,
+    }
+    
+    return render(request, 'library/librarian/report_active_members.html', context)
 
 
 # ==================== MEMBER VIEWS ====================
@@ -772,28 +749,28 @@ def borrow_book(request, pk):
         # Check if book is available
         if not book.is_available:
             messages.error(request, f'Le livre "{book.title}" n\'est pas disponible.')
-            return redirect('book_detail_member', pk=pk)
+            return redirect('library:book_detail_member', pk=pk)
         
         # Check if user has already borrowed this book
         existing_borrowing = Borrowing.objects.filter(
-            user=user, 
-            book=book, 
+            user=user,
+            book=book,
             status__in=['active', 'overdue']
         ).exists()
         
         if existing_borrowing:
             messages.error(request, 'Vous avez déjà emprunté ce livre.')
-            return redirect('book_detail_member', pk=pk)
+            return redirect('library:book_detail_member', pk=pk)
         
         # Check user borrowing limit
         active_borrowings = Borrowing.objects.filter(
-            user=user, 
+            user=user,
             status__in=['active', 'overdue']
         ).count()
         
         if active_borrowings >= 5:
             messages.error(request, 'Vous avez atteint la limite d\'emprunts (5 livres).')
-            return redirect('book_detail_member', pk=pk)
+            return redirect('library:book_detail_member', pk=pk)
         
         # Create borrowing
         borrowing = Borrowing.objects.create(
@@ -807,9 +784,13 @@ def borrow_book(request, pk):
         book.save()
         
         messages.success(request, f'Livre "{book.title}" emprunté avec succès! Date de retour: {borrowing.due_date}')
-        return redirect('my_borrowings')
+        return redirect('library:my_borrowings')
     
-    return render(request, 'library/member/borrow_book.html', {'book': book})
+    return render(request, 'library/member/borrow_book.html', {
+        'book': book,
+        'borrowing_period': 14,
+        'due_date': date.today() + timedelta(days=14)
+    })
 
 
 @login_required
@@ -825,7 +806,7 @@ def return_book(request, pk):
         if borrowing.penalty_amount > 0:
             messages.warning(request, f'Une pénalité de {borrowing.penalty_amount}€ a été appliquée.')
         
-        return redirect('my_borrowings')
+        return redirect('library:my_borrowings')
     
     return render(request, 'library/member/return_book.html', {'borrowing': borrowing})
 

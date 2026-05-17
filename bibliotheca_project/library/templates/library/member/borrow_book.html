@@ -1,0 +1,130 @@
+<!-- library/templates/library/member/borrow_book.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emprunter un livre - Bibliothèque</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .borrow-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .book-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .book-info h5 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 150px;
+            color: #333;
+        }
+        .info-value {
+            color: #555;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    {% include 'library/layouts/base_etudiant.html' %}
+    
+    <div class="container">
+        <div class="borrow-container">
+            <h2 class="mb-4"><i class="fas fa-book"></i> Emprunter un livre</h2>
+            
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <div class="book-info">
+                <h5>Informations sur le livre</h5>
+                <div class="info-row">
+                    <div class="info-label">Titre:</div>
+                    <div class="info-value">{{ book.title }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Auteurs:</div>
+                    <div class="info-value">{{ book.get_authors_names }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">ISBN:</div>
+                    <div class="info-value">{{ book.isbn }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Catégorie:</div>
+                    <div class="info-value">
+                        {% if book.category %}
+                        {{ book.category.name }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Exemplaires disponibles:</div>
+                    <div class="info-value">
+                        <span class="badge bg-success">{{ book.available_copies }}/{{ book.total_copies }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> 
+                Durée d'emprunt: <strong>{{ borrowing_period }} jours</strong><br>
+                Date de retour prévue: <strong>{{ due_date|date:"d/m/Y" }}</strong>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notes (optionnel)</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Ajoutez des notes si nécessaire..."></textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Confirmer l'emprunt
+                    </button>
+                    <a href="{% url 'library:book_search' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

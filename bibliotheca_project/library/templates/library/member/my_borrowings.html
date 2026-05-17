@@ -74,7 +74,7 @@
                                         </td>
                                         <td>
                                             {% if not borrowing.return_date %}
-                                                <a href="{% url 'library:return_book' borrowing.id %}" 
+                                                <a href="{% url 'library:return_book_member' borrowing.id %}"
                                                    class="btn btn-sm btn-outline-success">
                                                     <i class="fas fa-undo"></i> Retourner
                                                 </a>

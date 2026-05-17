@@ -1,46 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.html import format_html
-from .models import User, Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation
-
-
-class CustomUserCreationForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'address')
-
-
-class CustomUserChangeForm(UserChangeForm):
-    class Meta(UserChangeForm.Meta):
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'phone', 'address', 'user_type', 'is_active_member', 'is_staff', 'is_active')
-
-
-@admin.register(User)
-class UserAdmin(DjangoUserAdmin):
-    """Admin configuration for User model"""
-    add_form = CustomUserCreationForm
-    form = CustomUserChangeForm
-    model = User
-    list_display = ('username', 'email', 'first_name', 'last_name', 'user_type', 'is_active_member', 'membership_date')
-    list_filter = ('user_type', 'is_active_member', 'is_staff', 'is_active')
-    search_fields = ('username', 'email', 'first_name', 'last_name')
-    ordering = ('username',)
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Informations personnelles', {'fields': ('first_name', 'last_name', 'email')}),
-        ('Informations de contact', {'fields': ('phone', 'address')}),
-        ('Permissions', {'fields': ('user_type', 'is_active_member', 'is_staff', 'is_active', 'groups', 'user_permissions')}),
-        ('Dates importantes', {'fields': ('last_login', 'date_joined', 'membership_date')}),
-    )
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('username', 'email', 'first_name', 'last_name', 'phone', 'address', 'user_type', 'password1', 'password2', 'is_staff', 'is_active')
-        }),
-    )
-    readonly_fields = ('membership_date',)
+from .models import Book, Author, Category, Borrowing, Reservation, Penalty, Reclamation
 
 
 @admin.register(Author)

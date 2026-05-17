@@ -39,12 +39,7 @@
             <a href="{% url 'library:penalty_list' %}" class="portal-nav-link {% if 'penalty' in request.resolver_match.url_name %}active{% endif %}">
                 <i class="fas fa-euro-sign"></i> Pénalités
             </a>
-            <a href="{% url 'library:user_list' %}" class="portal-nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-users"></i> Utilisateurs
-            </a>
-            <a href="{% url 'library:reclamation_list' %}" class="portal-nav-link {% if 'reclamation' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-inbox"></i> Réclamations
-            </a>
+           
             <div class="portal-nav-section">Rapports</div>
             <a href="{% url 'library:report_overdue' %}" class="portal-nav-link {% if request.resolver_match.url_name == 'report_overdue' %}active{% endif %}">
                 <i class="fas fa-clock"></i> Retards
@@ -52,9 +47,7 @@
             <a href="{% url 'library:report_popular' %}" class="portal-nav-link {% if request.resolver_match.url_name == 'report_popular' %}active{% endif %}">
                 <i class="fas fa-chart-bar"></i> Livres populaires
             </a>
-            <a href="{% url 'library:report_active_members' %}" class="portal-nav-link {% if request.resolver_match.url_name == 'report_active_members' %}active{% endif %}">
-                <i class="fas fa-user-graduate"></i> Étudiants actifs
-            </a>
+           
         </nav>
         <div class="portal-sidebar-footer">
             <a href="{% url 'logout' %}" class="portal-nav-link">

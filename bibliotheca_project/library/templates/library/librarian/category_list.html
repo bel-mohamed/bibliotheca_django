@@ -1,10 +1,10 @@
-<!-- library/templates/library/librarian/book_list.html -->
+<!-- library/templates/library/librarian/category_list.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des livres - Bibliothèque</title>
+    <title>Liste des catégories - Bibliothèque</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,11 +59,6 @@
         .btn-add:hover {
             background-color: #1e7e34;
         }
-        .no-books {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
         .actions a {
             margin-right: 10px;
             color: #007bff;
@@ -73,62 +68,41 @@
 </head>
 <body>
     <div class="container">
-        <h1>📚 Liste des livres</h1>
+        <h1>📚 Liste des catégories</h1>
         
         <div>
-            <a href="{% url 'library:book_add' %}" class="btn btn-add">➕ Ajouter un livre</a>
+            <a href="{% url 'library:category_add' %}" class="btn btn-add">➕ Ajouter une catégorie</a>
             <a href="{% url 'library:librarian_dashboard' %}" class="btn">🏠 Retour au tableau de bord</a>
         </div>
 
-        {% if page_obj %}
+        {% if categories %}
         <table>
             <thead>
                 <tr>
-                    <th>Titre</th>
-                    <th>Auteurs</th>
-                    <th>ISBN</th>
-                    <th>Catégorie</th>
-                    <th>Exemplaires</th>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Nombre de livres</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for book in page_obj %}
+                {% for category in categories %}
                 <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.get_authors_names }}</td>
-                    <td>{{ book.isbn }}</td>
-                    <td>{{ book.category}}</td>
-                    <td>{{ book.available_copies }}/{{ book.total_copies }}</td>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.description|default:"-" }}</td>
+                    <td>{{ category.book_count }}</td>
                     <td class="actions">
-                        <a href="{% url 'library:book_detail' book.id %}">👁️ Voir</a>
-                        <a href="{% url 'library:book_edit' book.id %}">✏️ Modifier</a>
-                        <a href="{% url 'library:book_delete' book.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+                        <a href="{% url 'library:category_edit' category.id %}">✏️ Modifier</a>
+                        <a href="{% url 'library:category_delete' category.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        
-        {% if page_obj.has_other_pages %}
-        <div style="margin-top: 20px; text-align: center;">
-            {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="btn">⬅️ Précédent</a>
-            {% endif %}
-            
-            <span style="margin: 0 10px;">
-                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="btn">Suivant ➡️</a>
-            {% endif %}
-        </div>
-        {% endif %}
         {% else %}
-        <div class="no-books">
-            <p>Aucun livre n'est enregistré dans la bibliothèque.</p>
-            <a href="{% url 'library:book_add' %}" class="btn btn-add">Ajouter votre premier livre</a>
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <p>Aucune catégorie enregistrée.</p>
+            <a href="{% url 'library:category_add' %}" class="btn btn-add">Ajouter votre première catégorie</a>
         </div>
         {% endif %}
     </div>

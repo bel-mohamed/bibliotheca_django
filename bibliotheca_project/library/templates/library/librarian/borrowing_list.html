@@ -1,10 +1,10 @@
-<!-- library/templates/library/librarian/book_list.html -->
+<!-- library/templates/library/librarian/borrowing_list.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des livres - Bibliothèque</title>
+    <title>Liste des emprunts - Bibliothèque</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,10 +59,23 @@
         .btn-add:hover {
             background-color: #1e7e34;
         }
-        .no-books {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-active {
+            background-color: #28a745;
+            color: white;
+        }
+        .badge-returned {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .badge-overdue {
+            background-color: #dc3545;
+            color: white;
         }
         .actions a {
             margin-right: 10px;
@@ -73,10 +86,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>📚 Liste des livres</h1>
+        <h1>📚 Liste des emprunts</h1>
         
         <div>
-            <a href="{% url 'library:book_add' %}" class="btn btn-add">➕ Ajouter un livre</a>
+            <a href="{% url 'library:borrowing_create' %}" class="btn btn-add">➕ Nouvel emprunt</a>
             <a href="{% url 'library:librarian_dashboard' %}" class="btn">🏠 Retour au tableau de bord</a>
         </div>
 
@@ -84,26 +97,45 @@
         <table>
             <thead>
                 <tr>
-                    <th>Titre</th>
-                    <th>Auteurs</th>
-                    <th>ISBN</th>
-                    <th>Catégorie</th>
-                    <th>Exemplaires</th>
+                    <th>Utilisateur</th>
+                    <th>Livre</th>
+                    <th>Date d'emprunt</th>
+                    <th>Date de retour prévue</th>
+                    <th>Date de retour</th>
+                    <th>Statut</th>
+                    <th>Pénalité</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for book in page_obj %}
+                {% for borrowing in page_obj %}
                 <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.get_authors_names }}</td>
-                    <td>{{ book.isbn }}</td>
-                    <td>{{ book.category}}</td>
-                    <td>{{ book.available_copies }}/{{ book.total_copies }}</td>
+                    <td>{{ borrowing.user.username }}</td>
+                    <td>{{ borrowing.book.title }}</td>
+                    <td>{{ borrowing.borrow_date|date:"d/m/Y H:i" }}</td>
+                    <td>{{ borrowing.due_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if borrowing.return_date %}
+                        {{ borrowing.return_date|date:"d/m/Y H:i" }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ borrowing.status }}">{{ borrowing.get_status_display }}</span>
+                    </td>
+                    <td>
+                        {% if borrowing.penalty_amount > 0 %}
+                        {{ borrowing.penalty_amount }}€
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
                     <td class="actions">
-                        <a href="{% url 'library:book_detail' book.id %}">👁️ Voir</a>
-                        <a href="{% url 'library:book_edit' book.id %}">✏️ Modifier</a>
-                        <a href="{% url 'library:book_delete' book.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+                        <a href="{% url 'library:borrowing_detail' borrowing.id %}">👁️ Voir</a>
+                        {% if borrowing.status != 'returned' %}
+                        <a href="{% url 'library:borrowing_return' borrowing.id %}">✅ Retour</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -126,9 +158,9 @@
         </div>
         {% endif %}
         {% else %}
-        <div class="no-books">
-            <p>Aucun livre n'est enregistré dans la bibliothèque.</p>
-            <a href="{% url 'library:book_add' %}" class="btn btn-add">Ajouter votre premier livre</a>
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <p>Aucun emprunt enregistré.</p>
+            <a href="{% url 'library:borrowing_create' %}" class="btn btn-add">Créer le premier emprunt</a>
         </div>
         {% endif %}
     </div>

@@ -1,0 +1,162 @@
+<!-- library/templates/library/librarian/book_detail.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails du livre - Bibliothèque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .detail-label {
+            font-weight: bold;
+            width: 200px;
+            color: #333;
+        }
+        .detail-value {
+            flex: 1;
+            color: #555;
+        }
+        .cover-image {
+            max-width: 200px;
+            max-height: 300px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Détails du livre</h1>
+        
+        {% if book.cover_image %}
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="cover-image">
+        </div>
+        {% endif %}
+        
+        <div class="detail-row">
+            <div class="detail-label">Titre:</div>
+            <div class="detail-value">{{ book.title }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Auteurs:</div>
+            <div class="detail-value">{{ book.get_authors_names }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">ISBN:</div>
+            <div class="detail-value">{{ book.isbn }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Éditeur:</div>
+            <div class="detail-value">{{ book.publisher }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Date de publication:</div>
+            <div class="detail-value">
+                {% if book.publication_date %}
+                {{ book.publication_date|date:"d/m/Y" }}
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Catégorie:</div>
+            <div class="detail-value">
+                {% if book.category %}
+                {{ book.category.name }}
+                {% else %}
+                -
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Langue:</div>
+            <div class="detail-value">{{ book.language }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Nombre de pages:</div>
+            <div class="detail-value">{{ book.pages }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Exemplaires totaux:</div>
+            <div class="detail-value">{{ book.total_copies }}</div>
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-label">Exemplaires disponibles:</div>
+            <div class="detail-value">{{ book.available_copies }}</div>
+        </div>
+        
+        {% if book.description %}
+        <div class="detail-row">
+            <div class="detail-label">Description:</div>
+            <div class="detail-value">{{ book.description }}</div>
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 30px;">
+            <a href="{% url 'library:book_list' %}" class="btn">🔙 Retour à la liste</a>
+            <a href="{% url 'library:book_edit' book.id %}" class="btn btn-edit">✏️ Modifier</a>
+            <a href="{% url 'library:book_delete' book.id %}" class="btn btn-delete" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+        </div>
+    </div>
+</body>
+</html>

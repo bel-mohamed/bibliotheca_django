@@ -99,7 +99,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="{% url 'return_book_member' borrowing.pk %}" class="btn btn-sm btn-outline-warning">Retourner</a>
+                                    <a href="{% url 'library:return_book_member' borrowing.pk %}" class="btn btn-sm btn-outline-warning">Retourner</a>
                                 </td>
                             </tr>
                             {% endfor %}

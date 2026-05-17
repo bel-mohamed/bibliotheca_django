@@ -1,0 +1,125 @@
+<!-- library/templates/library/librarian/report_overdue.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport des livres en retard - Bibliothèque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 10px;
+        }
+        .summary {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #dc3545;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .actions a {
+            margin-right: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .overdue-days {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Rapport des livres en retard</h1>
+        
+        <div class="summary">
+            <strong>Total des emprunts en retard:</strong> {{ overdue_count }}<br>
+            <strong>Pénalités totales:</strong> {{ total_penalties }}€
+        </div>
+        
+        <div>
+            <a href="{% url 'library:librarian_dashboard' %}" class="btn">🏠 Retour au tableau de bord</a>
+            <a href="{% url 'library:borrowing_list' %}" class="btn">📚 Voir tous les emprunts</a>
+        </div>
+
+        {% if overdue_borrowings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Livre</th>
+                    <th>Date d'emprunt</th>
+                    <th>Date de retour prévue</th>
+                    <th>Jours de retard</th>
+                    <th>Pénalité</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for borrowing in overdue_borrowings %}
+                <tr>
+                    <td>{{ borrowing.user.username }}</td>
+                    <td>{{ borrowing.book.title }}</td>
+                    <td>{{ borrowing.borrow_date|date:"d/m/Y" }}</td>
+                    <td>{{ borrowing.due_date|date:"d/m/Y" }}</td>
+                    <td class="overdue-days">{{ borrowing.days_overdue }} jours</td>
+                    <td>{{ borrowing.penalty_amount }}€</td>
+                    <td class="actions">
+                        <a href="{% url 'library:borrowing_detail' borrowing.id %}">👁️ Détails</a>
+                        <a href="{% url 'library:borrowing_return' borrowing.id %}">✅ Retour</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 40px; color: #28a745;">
+            <p>✅ Aucun emprunt en retard!</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

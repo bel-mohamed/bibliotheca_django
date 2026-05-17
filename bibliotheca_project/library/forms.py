@@ -81,15 +81,16 @@ class BookForm(forms.ModelForm):
     """
     Form for adding/editing books
     """
-    authors = forms.ModelMultipleChoiceField(
-        queryset=Author.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
-        required=False
+    authors_text = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Entrez les noms d\'auteurs séparés par des virgules'}),
+        required=False,
+        label='Auteurs',
+        help_text='Ex: Jean Dupont, Marie Martin'
     )
     
     class Meta:
         model = Book
-        fields = ('title', 'authors', 'isbn', 'publisher', 'publication_date', 
+        fields = ('title', 'isbn', 'publisher', 'publication_date', 
                  'category', 'description', 'pages', 'language', 'total_copies', 
                  'available_copies', 'cover_image')
         widgets = {
@@ -108,7 +109,6 @@ class BookForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['authors'].queryset = Author.objects.all().order_by('last_name', 'first_name')
 
 
 class AuthorForm(forms.ModelForm):
