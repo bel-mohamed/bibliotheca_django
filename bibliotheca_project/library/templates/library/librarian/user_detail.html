@@ -4,201 +4,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails de l'utilisateur - Bibliothèque</title>
+    <title>Détails utilisateur - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#0f172a,#1e293b,#134e4a);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#111;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:950px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:35px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        .detail-row {
-            display: flex;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
         }
-        .detail-label {
-            font-weight: bold;
-            width: 200px;
-            color: #333;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:25px;
+            color:#111827;
+            border-left:6px solid #3b82f6;
+            padding-left:15px;
         }
-        .detail-value {
-            flex: 1;
-            color: #555;
+
+        /* DETAIL ROW */
+
+        .detail-row{
+            display:flex;
+            flex-wrap:wrap;
+            padding:14px 16px;
+            margin-bottom:12px;
+            background:#f8fafc;
+            border-radius:14px;
+            border:1px solid #e5e7eb;
+            transition:0.3s;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
+
+        .detail-row:hover{
+            background:#eef2ff;
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        .detail-label{
+            width:220px;
+            font-weight:800;
+            color:#475569;
         }
-        .btn-edit {
-            background-color: #ffc107;
-            color: black;
+
+        .detail-value{
+            flex:1;
+            font-weight:500;
+            color:#0f172a;
         }
-        .btn-edit:hover {
-            background-color: #e0a800;
+
+        /* BADGES */
+
+        .badge{
+            display:inline-block;
+            padding:6px 10px;
+            border-radius:10px;
+            font-size:12px;
+            font-weight:700;
         }
-        .btn-delete {
-            background-color: #dc3545;
+
+        .active{background:#22c55e;color:white;}
+        .inactive{background:#6b7280;color:white;}
+
+        .admin{background:#ef4444;color:white;}
+        .librarian{background:#f59e0b;color:black;}
+        .member{background:#3b82f6;color:white;}
+
+        /* BUTTONS */
+
+        .btn-group{
+            margin-top:30px;
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
         }
-        .btn-delete:hover {
-            background-color: #c82333;
+
+        .btn{
+            padding:12px 18px;
+            border-radius:12px;
+            text-decoration:none;
+            font-weight:700;
+            transition:0.3s;
+            color:white;
+            display:inline-block;
         }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+
+        .btn:hover{
+            transform:translateY(-2px);
         }
-        .badge-admin {
-            background-color: #dc3545;
-            color: white;
+
+        .btn-back{background:linear-gradient(135deg,#64748b,#334155);}
+        .btn-edit{background:linear-gradient(135deg,#f59e0b,#d97706);color:black;}
+        .btn-delete{background:linear-gradient(135deg,#ef4444,#dc2626);}
+
+        @media(max-width:768px){
+            .detail-label{
+                width:100%;
+                margin-bottom:5px;
+            }
+
+            .detail-row{
+                flex-direction:column;
+            }
         }
-        .badge-librarian {
-            background-color: #ffc107;
-            color: black;
-        }
-        .badge-member {
-            background-color: #17a2b8;
-            color: white;
-        }
-        .badge-active {
-            background-color: #28a745;
-            color: white;
-        }
-        .badge-inactive {
-            background-color: #6c757d;
-            color: white;
-        }
+
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>👤 Détails de l'utilisateur</h1>
-        
-        <div class="detail-row">
-            <div class="detail-label">ID:</div>
-            <div class="detail-value">{{ user.id }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Username:</div>
-            <div class="detail-value">{{ user.username }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Nom complet:</div>
-            <div class="detail-value">{{ user.first_name }} {{ user.last_name }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Email:</div>
-            <div class="detail-value">{{ user.email }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Téléphone:</div>
-            <div class="detail-value">{{ user.phone|default:"-" }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Adresse:</div>
-            <div class="detail-value">{{ user.address|default:"-" }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Type:</div>
-            <div class="detail-value">
-                <span class="badge badge-{{ user.user_type }}">{{ user.get_user_type_display }}</span>
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Statut membre:</div>
-            <div class="detail-value">
-                {% if user.is_active_member %}
-                <span class="badge badge-active">Actif</span>
-                {% else %}
-                <span class="badge badge-inactive">Inactif</span>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Date d'adhésion:</div>
-            <div class="detail-value">
-                {% if user.membership_date %}
-                {{ user.membership_date|date:"d/m/Y" }}
-                {% else %}
-                -
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Staff:</div>
-            <div class="detail-value">
-                {% if user.is_staff %}
-                ✓ Oui
-                {% else %}
-                ✗ Non
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Actif:</div>
-            <div class="detail-value">
-                {% if user.is_active %}
-                ✓ Oui
-                {% else %}
-                ✗ Non
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Dernière connexion:</div>
-            <div class="detail-value">
-                {% if user.last_login %}
-                {{ user.last_login|date:"d/m/Y H:i" }}
-                {% else %}
-                Jamais
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Date d'inscription:</div>
-            <div class="detail-value">{{ user.date_joined|date:"d/m/Y H:i" }}</div>
-        </div>
-        
-        <div style="margin-top: 30px;">
-            <a href="{% url 'library:user_list' %}" class="btn">🔙 Retour à la liste</a>
-            <a href="{% url 'library:user_edit' user.id %}" class="btn btn-edit">✏️ Modifier</a>
-            <a href="{% url 'library:user_delete' user.id %}" class="btn btn-delete" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+
+<div class="container">
+
+    <h1>👤 Détails utilisateur</h1>
+
+    <div class="detail-row">
+        <div class="detail-label">ID</div>
+        <div class="detail-value">{{ user.id }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Username</div>
+        <div class="detail-value">{{ user.username }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Nom complet</div>
+        <div class="detail-value">{{ user.first_name }} {{ user.last_name }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Email</div>
+        <div class="detail-value">{{ user.email }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Téléphone</div>
+        <div class="detail-value">{{ user.phone|default:"-" }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Adresse</div>
+        <div class="detail-value">{{ user.address|default:"-" }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Type</div>
+        <div class="detail-value">
+            {% if user.user_type == 'admin' %}
+                <span class="badge admin">Admin</span>
+            {% elif user.user_type == 'librarian' %}
+                <span class="badge librarian">Bibliothécaire</span>
+            {% else %}
+                <span class="badge member">Membre</span>
+            {% endif %}
         </div>
     </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Statut</div>
+        <div class="detail-value">
+            {% if user.is_active_member %}
+                <span class="badge active">Actif</span>
+            {% else %}
+                <span class="badge inactive">Inactif</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Date d'adhésion</div>
+        <div class="detail-value">
+            {{ user.membership_date|default:"-"|date:"d/m/Y" }}
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Staff</div>
+        <div class="detail-value">
+            {% if user.is_staff %}Oui{% else %}Non{% endif %}
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Dernière connexion</div>
+        <div class="detail-value">
+            {% if user.last_login %}
+                {{ user.last_login|date:"d/m/Y H:i" }}
+            {% else %}
+                Jamais
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Date d'inscription</div>
+        <div class="detail-value">{{ user.date_joined|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <div class="btn-group">
+
+        <a href="{% url 'library:user_list' %}" class="btn btn-back">
+            🔙 Retour
+        </a>
+
+        <a href="{% url 'library:user_edit' user.id %}" class="btn btn-edit">
+            ✏️ Modifier
+        </a>
+
+        <a href="{% url 'library:user_delete' user.id %}" class="btn btn-delete"
+           onclick="return confirm('Confirmer la suppression ?')">
+            🗑️ Supprimer
+        </a>
+
+    </div>
+
+</div>
+
 </body>
 </html>

@@ -4,120 +4,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supprimer un utilisateur - Bibliothèque</title>
+    <title>Supprimer un utilisateur - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #dc3545;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:650px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:35px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        .warning-box {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
+
+        @keyframes fadeIn{
+            from{opacity:0; transform:translateY(20px);}
+            to{opacity:1; transform:translateY(0);}
         }
-        .user-info {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+
+        h1{
+            font-size:1.9rem;
+            margin-bottom:25px;
+            color:#222;
+            border-left:6px solid #ef4444;
+            padding-left:15px;
         }
-        .info-row {
-            margin-bottom: 10px;
+
+        .warning-box{
+            background:#fef2f2;
+            border:1px solid #fecaca;
+            color:#991b1b;
+            padding:14px;
+            border-radius:14px;
+            margin-bottom:18px;
+            font-weight:600;
         }
-        .info-label {
-            font-weight: bold;
-            color: #333;
+
+        .user-info{
+            background:#f9fafb;
+            border:1px solid #e5e7eb;
+            border-radius:16px;
+            padding:18px;
+            margin-bottom:20px;
         }
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 5px;
+
+        .info-row{
+            margin-bottom:10px;
+            font-size:14px;
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        .info-label{
+            font-weight:700;
+            color:#374151;
         }
-        .btn-danger {
-            background-color: #dc3545;
+
+        .danger-text{
+            color:#dc2626;
+            font-weight:700;
         }
-        .btn-danger:hover {
-            background-color: #c82333;
+
+        /* BUTTONS */
+
+        .button-group{
+            margin-top:25px;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
         }
-        .btn-cancel {
-            background-color: #6c757d;
+
+        .btn{
+            padding:14px 20px;
+            border:none;
+            border-radius:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
         }
-        .btn-cancel:hover {
-            background-color: #545b62;
+
+        .btn:hover{
+            transform:translateY(-2px);
         }
+
+        .btn-danger{
+            background:linear-gradient(135deg,#ef4444,#b91c1c);
+            color:white;
+        }
+
+        .btn-cancel{
+            background:linear-gradient(135deg,#6b7280,#4b5563);
+            color:white;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+            .container{padding:22px;}
+            h1{font-size:1.6rem;}
+            .button-group{flex-direction:column;}
+            .btn{width:100%;}
+        }
+
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>⚠️ Supprimer un utilisateur</h1>
-        
-        <div class="warning-box">
-            <strong>Attention:</strong> Cette action est irréversible. L'utilisateur sera supprimé définitivement de la base de données.
+
+<div class="container">
+
+    <h1>⚠️ Supprimer un utilisateur</h1>
+
+    <div class="warning-box">
+        Cette action est <strong>irréversible</strong>. L’utilisateur sera supprimé définitivement.
+    </div>
+
+    <div class="user-info">
+
+        <div class="info-row">
+            <span class="info-label">Username:</span> {{ user.username }}
         </div>
-        
-        <div class="user-info">
-            <div class="info-row">
-                <span class="info-label">Username:</span> {{ user.username }}
-            </div>
-            <div class="info-row">
-                <span class="info-label">Nom complet:</span> {{ user.first_name }} {{ user.last_name }}
-            </div>
-            <div class="info-row">
-                <span class="info-label">Email:</span> {{ user.email }}
-            </div>
-            <div class="info-row">
-                <span class="info-label">Type:</span> {{ user.get_user_type_display }}
-            </div>
-            {% if user.active_borrowings > 0 %}
-            <div class="info-row" style="color: #dc3545;">
-                <span class="info-label">Emprunts actifs:</span> {{ user.active_borrowings }}
-            </div>
-            {% endif %}
+
+        <div class="info-row">
+            <span class="info-label">Nom:</span> {{ user.first_name }} {{ user.last_name }}
         </div>
-        
+
+        <div class="info-row">
+            <span class="info-label">Email:</span> {{ user.email }}
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Type:</span> {{ user.get_user_type_display }}
+        </div>
+
         {% if user.active_borrowings > 0 %}
+        <div class="info-row danger-text">
+            ⚠ Emprunts actifs: {{ user.active_borrowings }}
+        </div>
+        {% endif %}
+
+    </div>
+
+    {% if user.active_borrowings > 0 %}
+
         <div class="warning-box">
-            <strong>Impossible de supprimer:</strong> Cet utilisateur a {{ user.active_borrowings }} emprunt(s) en cours. Veuillez d'abord faire retourner tous les livres.
+            Impossible de supprimer cet utilisateur : il a encore des emprunts actifs.
         </div>
-        <div>
-            <a href="{% url 'library:user_list' %}" class="btn btn-cancel">❌ Retour</a>
+
+        <div class="button-group">
+            <a href="{% url 'library:user_list' %}" class="btn btn-cancel">
+                ❌ Retour
+            </a>
         </div>
-        {% else %}
+
+    {% else %}
+
         <form method="post">
             {% csrf_token %}
-            <div style="margin-top: 30px;">
-                <button type="submit" class="btn btn-danger">🗑️ Confirmer la suppression</button>
-                <a href="{% url 'library:user_list' %}" class="btn btn-cancel">❌ Annuler</a>
+
+            <div class="button-group">
+
+                <button type="submit" class="btn btn-danger">
+                    🗑️ Confirmer suppression
+                </button>
+
+                <a href="{% url 'library:user_list' %}" class="btn btn-cancel">
+                    ❌ Annuler
+                </a>
+
             </div>
+
         </form>
-        {% endif %}
-    </div>
+
+    {% endif %}
+
+</div>
+
 </body>
 </html>

@@ -13,6 +13,20 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
 
+# Workaround for Django 4.2.30 + Python 3.14: preserve RenderContext subclass when copying.
+try:
+    from django.template.context import RenderContext
+
+    def _rendercontext_copy(self):
+        duplicate = self.__class__.__new__(self.__class__)
+        duplicate.dicts = self.dicts[:]
+        duplicate.template = getattr(self, 'template', None)
+        return duplicate
+
+    RenderContext.__copy__ = _rendercontext_copy
+except Exception:
+    pass
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -147,3 +161,7 @@ MESSAGE_TAGS = {
 DEFAULT_BORROWING_DAYS = 14  # 2 weeks
 MAX_BORROWINGS_PER_USER = 5
 PENALTY_RATE_PER_DAY = 0.50  # 0.50€ per day
+
+# Email settings for reservation notifications
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'no-reply@bibliotheque.local'

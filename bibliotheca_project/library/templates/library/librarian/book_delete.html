@@ -1,0 +1,44 @@
+<!-- library/templates/library/librarian/book_delete.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supprimer un livre - Bibliotheca</title>
+    <style>
+        body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;background:linear-gradient(135deg,#f8fafc,#eef2ff);min-height:100vh;padding:30px}
+        .card{max-width:760px;margin:30px auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(2,6,23,0.08)}
+        h1{font-size:1.6rem;margin-bottom:12px;color:#222}
+        .warning{background:#fff7ed;border:1px solid #ffedd5;color:#7c2d12;padding:12px;border-radius:10px;margin-bottom:16px}
+        .meta{background:#f8fafc;border:1px solid #e6eef8;padding:14px;border-radius:8px;margin-bottom:16px}
+        .meta div{margin-bottom:8px}
+        .label{font-weight:700;color:#374151}
+        .btns{display:flex;gap:12px}
+        .btn{padding:10px 16px;border-radius:8px;font-weight:700;border:none;cursor:pointer}
+        .btn-danger{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff}
+        .btn-cancel{background:#6b7280;color:#fff}
+        @media(max-width:600px){.btns{flex-direction:column}}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>⚠️ Supprimer le livre</h1>
+        <div class="warning">Cette action supprimera définitivement le livre sélectionné. Cette opération est irréversible.</div>
+        <div class="meta">
+            <div><span class="label">Titre:</span> {{ book.title }}</div>
+            <div><span class="label">Auteur(s):</span> {% for a in book.authors.all %}{{ a }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+            <div><span class="label">ISBN:</span> {{ book.isbn|default:"-" }}</div>
+            <div><span class="label">Copies totales:</span> {{ book.total_copies }}</div>
+            <div><span class="label">Copies disponibles:</span> {{ book.available_copies }}</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="btns">
+                <button type="submit" class="btn btn-danger">🗑️ Confirmer la suppression</button>
+                <a href="{% url 'library:book_list' %}" class="btn btn-cancel">❌ Annuler</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -153,16 +153,31 @@ def librarian_dashboard(request):
 @user_passes_test(is_librarian)
 def book_list(request):
     """List all books"""
-    books = Book.objects.all().order_by('title')
+    query = request.GET.get('q', '').strip()
+    books = Book.objects.all()
+
+    if query:
+        books = books.filter(
+            Q(title__icontains=query) |
+            Q(isbn__icontains=query) |
+            Q(category__name__icontains=query) |
+            Q(authors__first_name__icontains=query) |
+            Q(authors__last_name__icontains=query)
+        ).distinct()
+
+    books = books.order_by('title')
     paginator = Paginator(books, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'library/librarian/book_list.html', {'page_obj': page_obj})
+    return render(request, 'library/librarian/book_list.html', {
+        'page_obj': page_obj,
+        'query': query,
+    })
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def book_add(request):
     """Add a new book"""
     if request.method == 'POST':
@@ -201,7 +216,7 @@ def book_add(request):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def book_edit(request, pk):
     """Edit an existing book"""
     book = get_object_or_404(Book, pk=pk)
@@ -247,7 +262,7 @@ def book_edit(request, pk):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def book_delete(request, pk):
     """Delete a book"""
     book = get_object_or_404(Book, pk=pk)
@@ -280,12 +295,27 @@ def book_detail(request, pk):
 @user_passes_test(is_librarian)
 def author_list(request):
     """List all authors"""
-    authors = Author.objects.all().order_by('last_name')
+    query = request.GET.get('q', '').strip()
+    authors = Author.objects.all()
+
+    if query:
+        authors = authors.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(nationality__icontains=query) |
+            Q(books__title__icontains=query)
+        ).distinct()
+
+    authors = authors.order_by('last_name')
     paginator = Paginator(authors, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'library/librarian/author_list.html', {'page_obj': page_obj, 'authors': authors})
+    return render(request, 'library/librarian/author_list.html', {
+        'page_obj': page_obj,
+        'authors': page_obj,
+        'query': query,
+    })
 
 
 @login_required
@@ -345,12 +375,24 @@ def author_delete(request, pk):
 @user_passes_test(is_librarian)
 def category_list(request):
     """List all categories"""
-    categories = Category.objects.all().order_by('name')
-    return render(request, 'library/librarian/category_list.html', {'categories': categories})
+    query = request.GET.get('q', '').strip()
+    categories = Category.objects.annotate(book_count=Count('books'))
+
+    if query:
+        categories = categories.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query)
+        )
+
+    categories = categories.order_by('name')
+    return render(request, 'library/librarian/category_list.html', {
+        'categories': categories,
+        'query': query,
+    })
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def category_add(request):
     """Add a new category"""
     if request.method == 'POST':
@@ -366,7 +408,7 @@ def category_add(request):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def category_edit(request, pk):
     """Edit an existing category"""
     category = get_object_or_404(Category, pk=pk)
@@ -384,7 +426,7 @@ def category_edit(request, pk):
 
 
 @login_required
-@user_passes_test(is_librarian)
+@user_passes_test(is_admin)
 def category_delete(request, pk):
     """Delete a category"""
     category = get_object_or_404(Category, pk=pk)
@@ -483,12 +525,27 @@ def user_detail(request, pk):
 @user_passes_test(is_librarian)
 def borrowing_list(request):
     """List all borrowings"""
-    borrowings = Borrowing.objects.all().order_by('-borrow_date')
+    query = request.GET.get('q', '').strip()
+    borrowings = Borrowing.objects.all()
+
+    if query:
+        borrowings = borrowings.filter(
+            Q(user__username__icontains=query) |
+            Q(user__email__icontains=query) |
+            Q(book__title__icontains=query) |
+            Q(book__isbn__icontains=query) |
+            Q(status__icontains=query)
+        ).distinct()
+
+    borrowings = borrowings.order_by('-borrow_date')
     paginator = Paginator(borrowings, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'library/librarian/borrowing_list.html', {'page_obj': page_obj})
+    return render(request, 'library/librarian/borrowing_list.html', {
+        'page_obj': page_obj,
+        'query': query,
+    })
 
 
 @login_required
@@ -564,7 +621,19 @@ def borrowing_detail(request, pk):
 def penalty_list(request):
     """List all penalties"""
     sync_penalties()
-    penalties = Penalty.objects.all().order_by('-created_date')
+    query = request.GET.get('q', '').strip()
+    penalties = Penalty.objects.all()
+
+    if query:
+        penalties = penalties.filter(
+            Q(user__username__icontains=query) |
+            Q(user__email__icontains=query) |
+            Q(borrowing__book__title__icontains=query) |
+            Q(status__icontains=query) |
+            Q(amount__icontains=query)
+        ).distinct()
+
+    penalties = penalties.order_by('-created_date')
     paginator = Paginator(penalties, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -572,6 +641,7 @@ def penalty_list(request):
     return render(request, 'library/librarian/penalty_list.html', {
         'page_obj': page_obj,
         'penalties': page_obj,
+        'query': query,
     })
 
 
@@ -748,12 +818,25 @@ def book_detail_member(request, pk):
 @user_passes_test(is_member)
 def my_borrowings(request):
     """View member's borrowing history"""
-    borrowings = Borrowing.objects.filter(user=request.user).order_by('-borrow_date')
+    query = request.GET.get('q', '').strip()
+    borrowings = Borrowing.objects.filter(user=request.user)
+
+    if query:
+        borrowings = borrowings.filter(
+            Q(book__title__icontains=query) |
+            Q(book__isbn__icontains=query) |
+            Q(status__icontains=query)
+        ).distinct()
+
+    borrowings = borrowings.order_by('-borrow_date')
     paginator = Paginator(borrowings, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'library/member/my_borrowings.html', {'page_obj': page_obj})
+    return render(request, 'library/member/my_borrowings.html', {
+        'page_obj': page_obj,
+        'query': query,
+    })
 
 
 @login_required
@@ -800,6 +883,12 @@ def borrow_book(request, pk):
         # Update book availability
         book.available_copies -= 1
         book.save()
+
+        # If the user had an active reservation for this book, deactivate it
+        active_reservation = Reservation.objects.filter(user=user, book=book, is_active=True).first()
+        if active_reservation:
+            active_reservation.is_active = False
+            active_reservation.save(update_fields=['is_active'])
         
         messages.success(request, f'Livre "{book.title}" emprunté avec succès! Date de retour: {borrowing.due_date}')
         return redirect('library:my_borrowings')
@@ -833,7 +922,7 @@ def reserve_book(request, pk):
         
         if existing_reservation:
             messages.error(request, 'Vous avez déjà réservé ce livre.')
-            return redirect('book_detail_member', pk=pk)
+            return redirect('library:book_detail_member', pk=pk)
         
         # Create reservation
         reservation = Reservation.objects.create(
@@ -851,12 +940,26 @@ def reserve_book(request, pk):
 @user_passes_test(is_member)
 def my_reservations(request):
     """View member's reservations"""
+    query = request.GET.get('q', '').strip()
     reservations = Reservation.objects.filter(
-        user=request.user, 
+        user=request.user,
         is_active=True
-    ).order_by('-reservation_date')
+    )
+
+    if query:
+        reservations = reservations.filter(
+            Q(book__title__icontains=query) |
+            Q(book__isbn__icontains=query) |
+            Q(book__authors__first_name__icontains=query) |
+            Q(book__authors__last_name__icontains=query)
+        ).distinct()
+
+    reservations = reservations.order_by('-reservation_date')
     
-    return render(request, 'library/member/my_reservations.html', {'reservations': reservations})
+    return render(request, 'library/member/my_reservations.html', {
+        'reservations': reservations,
+        'query': query,
+    })
 
 
 @login_required
@@ -870,6 +973,10 @@ def cancel_reservation(request, pk):
         reservation.is_active = False
         reservation.save()
         messages.info(request, f'Réservation pour "{book_title}" annulée.')
+        # If AJAX request, return JSON so client can update page without redirect
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            from django.http import JsonResponse
+            return JsonResponse({'success': True, 'id': reservation.id})
         return redirect('library:my_reservations')
     
     return render(request, 'library/member/cancel_reservation.html', {'reservation': reservation})
@@ -947,6 +1054,20 @@ def my_reclamations(request):
 
 
 @login_required
+@user_passes_test(is_member)
+def mark_reclamation_read(request, pk):
+    """Mark a reclamation response as read by the user (AJAX endpoint)."""
+    reclamation = get_object_or_404(Reclamation, pk=pk, user=request.user)
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        reclamation.response_read = True
+        reclamation.save(update_fields=['response_read'])
+        from django.http import JsonResponse
+        return JsonResponse({'success': True, 'id': reclamation.id})
+    from django.http import HttpResponseForbidden
+    return HttpResponseForbidden()
+
+
+@login_required
 @user_passes_test(is_librarian)
 def reclamation_list(request):
     """View all reclamations for librarians"""
@@ -999,3 +1120,56 @@ def reclamation_detail(request, pk):
         return redirect('library:reclamation_detail', pk=pk)
     
     return render(request, 'library/librarian/reclamation_detail.html', {'reclamation': reclamation})
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_reclamation_list(request):
+    """View all reclamations for administrators"""
+    reclamations = Reclamation.objects.all().order_by('-created_date')
+
+    status_filter = request.GET.get('status')
+    if status_filter:
+        reclamations = reclamations.filter(status=status_filter)
+
+    priority_filter = request.GET.get('priority')
+    if priority_filter:
+        reclamations = reclamations.filter(priority=priority_filter)
+
+    paginator = Paginator(reclamations, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'priority_filter': priority_filter,
+    }
+
+    return render(request, 'library/admin/reclamation_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_reclamation_detail(request, pk):
+    """View reclamation details for administrators"""
+    reclamation = get_object_or_404(Reclamation, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'in_progress':
+            reclamation.mark_as_in_progress()
+            messages.success(request, 'Réclamation marquée comme en cours.')
+        elif action == 'resolve':
+            response = request.POST.get('response')
+            reclamation.mark_as_resolved(response)
+            messages.success(request, 'Réclamation résolue avec succès.')
+        elif action == 'reject':
+            reclamation.status = 'rejected'
+            reclamation.save()
+            messages.success(request, 'Réclamation rejetée.')
+
+        return redirect('library:admin_reclamation_detail', pk=pk)
+
+    return render(request, 'library/admin/reclamation_detail.html', {'reclamation': reclamation})

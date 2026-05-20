@@ -59,6 +59,8 @@ urlpatterns = [
     # Reclamations
     path('librarian/reclamations/', views.reclamation_list, name='reclamation_list'),
     path('librarian/reclamations/<int:pk>/', views.reclamation_detail, name='reclamation_detail'),
+    path('admin/reclamations/', views.admin_reclamation_list, name='admin_reclamation_list'),
+    path('admin/reclamations/<int:pk>/', views.admin_reclamation_detail, name='admin_reclamation_detail'),
     
     # ==================== MEMBER URLS ====================
     path('member/', views.member_dashboard, name='member_dashboard'),
@@ -85,4 +87,5 @@ urlpatterns = [
     # Reclamations
     path('reclamations/create/', views.create_reclamation, name='create_reclamation'),
     path('my-reclamations/', views.my_reclamations, name='my_reclamations'),
+    path('reclamations/<int:pk>/mark-read/', views.mark_reclamation_read, name='mark_reclamation_read'),
 ]

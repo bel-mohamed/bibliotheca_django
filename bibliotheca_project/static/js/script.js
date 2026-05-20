@@ -109,6 +109,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Cancel reservation via AJAX (delegated handler)
+    document.body.addEventListener('click', function(e) {
+        var btn = e.target.closest && e.target.closest('.btn-cancel-reservation');
+        if (!btn) return;
+        e.preventDefault();
+        console.log('Cancel button clicked (delegated), id=', btn.getAttribute('data-id'));
+        if (!confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) return;
+        var url = btn.getAttribute('data-url') || ('/library/reservations/' + btn.getAttribute('data-id') + '/cancel/');
+        var csrftoken = getCookie('csrftoken');
+        var row = btn.closest('tr');
+        fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }).then(function(res){
+            if (!res.ok) {
+                console.error('Cancel HTTP status', res.status, res.statusText);
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        }).then(function(data){
+            if (data && data.success) {
+                if (row) row.remove();
+                window.Bibliotheque.showToast('Réservation annulée.', 'success');
+            } else {
+                console.error('Cancel response', data);
+                window.Bibliotheque.showToast('Impossible d\'annuler la réservation.', 'error');
+            }
+        }).catch(function(err){
+            console.error('Cancel request failed', err);
+            window.Bibliotheque.showToast('Erreur lors de l\'annulation.', 'error');
+        });
+    });
+
     // Loading states for AJAX requests
     setupAjaxLoading();
 });
@@ -201,6 +240,12 @@ function setupAjaxLoading() {
         this.addEventListener('loadend', hideLoading);
         return originalXHROpen.apply(this, arguments);
     };
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 function showLoading() {

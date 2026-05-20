@@ -1,6 +1,8 @@
 # library/models.py
 from decimal import Decimal
 
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
@@ -109,6 +111,20 @@ class Book(models.Model):
     def get_authors_names(self):
         """Retourne les noms des auteurs"""
         return ", ".join([author.__str__() for author in self.authors.all()])
+
+    def save(self, *args, **kwargs):
+        old_available = None
+        if self.pk:
+            try:
+                old_book = Book.objects.get(pk=self.pk)
+                old_available = old_book.available_copies
+            except Book.DoesNotExist:
+                old_available = None
+
+        super().save(*args, **kwargs)
+
+        if old_available is not None and old_available <= 0 and self.available_copies > 0:
+            notify_reservations_for_book(self)
     
     class Meta:
         ordering = ['-added_date']
@@ -239,21 +255,44 @@ class Penalty(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.amount}€ ({self.status})"
-    
-    def mark_as_paid(self, payment_method=None):
-        """
-        Mark penalty as paid
-        """
+
+    def mark_as_paid(self, payment_method='cash'):
+        """Mark this penalty as paid and record payment metadata."""
         self.status = 'paid'
         self.paid_date = timezone.now()
-        if payment_method:
-            self.payment_method = payment_method
-        self.borrowing.penalty_paid = True
-        self.borrowing.save()
-        self.save()
-    
-    class Meta:
-        ordering = ['-created_date']
+        self.payment_method = payment_method
+        self.save(update_fields=['status', 'paid_date', 'payment_method'])
+
+
+def notify_reservations_for_book(book):
+    """Send a notification email to active reservations when a book becomes available."""
+    if book.available_copies <= 0:
+        return 0
+
+    sent_count = 0
+    reservations = book.reservations.filter(is_active=True, notification_sent=False).select_related('user')
+    subject = f'Votre réservation est disponible : {book.title}'
+
+    for reservation in reservations:
+        recipient = reservation.user.email
+        if not recipient:
+            continue
+
+        message = (
+            f'Bonjour {reservation.user.get_full_name() or reservation.user.username},\n\n'
+            f'Le livre réservé "{book.title}" est maintenant disponible. '
+            'Vous avez 48 heures pour venir l\'emprunter.\n\n'
+            'Merci de vous connecter à votre espace bibliothèque pour finaliser l\'emprunt.\n\n'
+            'Cordialement,\nL\'équipe de la bibliothèque'
+        )
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@bibliotheque.local')
+        send_mail(subject, message, from_email, [recipient], fail_silently=True)
+
+        reservation.notification_sent = True
+        reservation.save(update_fields=['notification_sent'])
+        sent_count += 1
+
+    return sent_count
 
 
 class Reclamation(models.Model):
@@ -283,6 +322,7 @@ class Reclamation(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     resolved_date = models.DateTimeField(null=True, blank=True)
     admin_response = models.TextField(blank=True, null=True)
+    response_read = models.BooleanField(default=True)
     admin_notes = models.TextField(blank=True, null=True)
     
     def __str__(self):
@@ -294,9 +334,36 @@ class Reclamation(models.Model):
         """
         self.status = 'resolved'
         self.resolved_date = timezone.now()
+        self.response_read = False
         if response:
             self.admin_response = response
+            self.send_response_notification()
         self.save()
+
+    def send_response_notification(self):
+        """Send a notification email to the user when the admin replies."""
+        recipient = self.user.email
+        if not recipient:
+            return
+
+        subject = f'Réponse à votre réclamation : {self.subject}'
+        message = (
+            f'Bonjour {self.user.get_full_name() or self.user.username},\n\n'
+            'Votre réclamation a reçu une réponse de l\'administration.\n\n'
+            f'Sujet : {self.subject}\n\n'
+            'Réponse :\n'
+            f'{self.admin_response}\n\n'
+            'Connectez-vous à votre espace bibliothèque pour voir les détails.\n\n'
+            'Cordialement,\nL\'équipe de la bibliothèque'
+        )
+
+        send_mail(
+            subject,
+            message,
+            getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@bibliotheque.local'),
+            [recipient],
+            fail_silently=True
+        )
     
     def mark_as_in_progress(self):
         """

@@ -1,0 +1,72 @@
+{% extends 'library/layouts/base_etudiant.html' %}
+{% load static %}
+
+{% block title %}Réserver un livre - Bibliotheca{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-bookmark"></i> Réserver un livre</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Vous êtes sur le point de réserver ce livre. Vous serez contacté dès qu'il sera disponible.
+                    </p>
+
+                    <div class="mb-4">
+                        <h5>Détails du livre</h5>
+                        <dl class="row">
+                            <dt class="col-sm-4">Titre</dt>
+                            <dd class="col-sm-8">{{ book.title }}</dd>
+
+                            <dt class="col-sm-4">Auteurs</dt>
+                            <dd class="col-sm-8">{{ book.get_authors_names }}</dd>
+
+                            <dt class="col-sm-4">ISBN</dt>
+                            <dd class="col-sm-8">{{ book.isbn }}</dd>
+
+                            <dt class="col-sm-4">Catégorie</dt>
+                            <dd class="col-sm-8">
+                                {% if book.category %}
+                                    {{ book.category.name }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-sm-4">Statut actuel</dt>
+                            <dd class="col-sm-8">
+                                {% if book.is_available %}
+                                    <span class="badge bg-success">Disponible</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Indisponible</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Message ou notes (optionnel)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Ajouter un message à votre réservation..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Confirmer la réservation
+                            </button>
+                            <a href="{% url 'library:book_detail_member' book.id %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -65,16 +65,33 @@ class UserLoginForm(forms.Form):
 
 class UserEditForm(forms.ModelForm):
     """
-    Form for editing user profile
+    Form for editing user profile and admin user management
     """
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')
+        fields = (
+            'username', 'first_name', 'last_name', 'email',
+            'phone', 'address', 'user_type', 'is_active', 'is_active_member'
+        )
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'user_type': forms.Select(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active_member': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+            if field_name not in ['is_active', 'is_active_member']:
+                field.widget.attrs['class'] = 'form-control'
+            if field_name == 'address' and hasattr(field.widget, 'attrs'):
+                field.widget.attrs['rows'] = 3
 
 
 class BookForm(forms.ModelForm):

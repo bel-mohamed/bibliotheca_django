@@ -4,122 +4,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapport des livres en retard - Bibliothèque</title>
+    <title>Rapport des livres en retard - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #dc3545;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:1200px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:35px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        .summary {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:20px;
+            color:#111827;
+            border-left:6px solid #ef4444;
+            padding-left:15px;
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+
+        /* SUMMARY */
+
+        .summary{
+            background:linear-gradient(135deg,#fee2e2,#fecaca);
+            color:#7f1d1d;
+            padding:16px 18px;
+            border-radius:14px;
+            margin-bottom:20px;
+            font-weight:600;
+            border:1px solid #fca5a5;
         }
-        th {
-            background-color: #dc3545;
-            color: white;
+
+        /* TABLE */
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+            overflow:hidden;
+            border-radius:14px;
         }
-        tr:hover {
-            background-color: #f5f5f5;
+
+        th, td{
+            padding:14px;
+            text-align:left;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
+
+        th{
+            background:linear-gradient(135deg,#ef4444,#b91c1c);
+            color:white;
+            font-weight:800;
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        tr{
+            background:#fff;
+            transition:0.2s;
         }
-        .actions a {
-            margin-right: 10px;
-            color: #007bff;
-            text-decoration: none;
+
+        tr:hover{
+            background:#f3f0ff;
         }
-        .overdue-days {
-            color: #dc3545;
-            font-weight: bold;
+
+        td{
+            border-bottom:1px solid #eee;
         }
+
+        /* BADGE DAYS */
+
+        .overdue-days{
+            color:#dc2626;
+            font-weight:800;
+        }
+
+        /* BUTTONS */
+
+        .btn-group{
+            margin-top:20px;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:14px 20px;
+            border-radius:14px;
+            text-decoration:none;
+            font-weight:800;
+            transition:0.3s;
+            color:white;
+            background:linear-gradient(135deg,#6b7280,#4b5563);
+        }
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ACTION LINKS */
+
+        .actions a{
+            margin-right:10px;
+            color:#4f46e5;
+            font-weight:700;
+            text-decoration:none;
+        }
+
+        .actions a:hover{
+            text-decoration:underline;
+        }
+
+        /* EMPTY STATE */
+
+        .empty{
+            text-align:center;
+            padding:40px;
+            color:#22c55e;
+            font-weight:800;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+
+            .container{
+                padding:24px;
+            }
+
+            h1{
+                font-size:1.6rem;
+            }
+
+            table, thead, tbody, th, td, tr{
+                display:block;
+            }
+
+            th{
+                display:none;
+            }
+
+            td{
+                padding:10px 0;
+                border:none;
+            }
+
+            tr{
+                margin-bottom:15px;
+                border-bottom:2px solid #eee;
+                padding-bottom:10px;
+            }
+        }
+
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>⚠️ Rapport des livres en retard</h1>
-        
-        <div class="summary">
-            <strong>Total des emprunts en retard:</strong> {{ overdue_count }}<br>
-            <strong>Pénalités totales:</strong> {{ total_penalties }}€
-        </div>
-        
-        <div>
-            <a href="{% url portal_dashboard_url %}" class="btn">🏠 Retour au tableau de bord</a>
-            <a href="{% url 'library:borrowing_list' %}" class="btn">📚 Voir tous les emprunts</a>
-        </div>
 
-        {% if overdue_borrowings %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Utilisateur</th>
-                    <th>Livre</th>
-                    <th>Date d'emprunt</th>
-                    <th>Date de retour prévue</th>
-                    <th>Jours de retard</th>
-                    <th>Pénalité</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for borrowing in overdue_borrowings %}
-                <tr>
-                    <td>{{ borrowing.user.username }}</td>
-                    <td>{{ borrowing.book.title }}</td>
-                    <td>{{ borrowing.borrow_date|date:"d/m/Y" }}</td>
-                    <td>{{ borrowing.due_date|date:"d/m/Y" }}</td>
-                    <td class="overdue-days">{{ borrowing.days_overdue }} jours</td>
-                    <td>{{ borrowing.penalty_amount }}€</td>
-                    <td class="actions">
-                        <a href="{% url 'library:borrowing_detail' borrowing.id %}">👁️ Détails</a>
-                        <a href="{% url 'library:borrowing_return' borrowing.id %}">✅ Retour</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div style="text-align: center; padding: 40px; color: #28a745;">
-            <p>✅ Aucun emprunt en retard!</p>
-        </div>
-        {% endif %}
+<body>
+
+<div class="container">
+
+    <h1>⚠️ Rapport des retards</h1>
+
+    <div class="summary">
+        <div>📌 Total en retard : {{ overdue_count }}</div>
+        <div>💰 Pénalités totales : {{ total_penalties }}€</div>
     </div>
+
+    <div class="btn-group">
+        <a href="{% url portal_dashboard_url %}" class="btn">🏠 Dashboard</a>
+        <a href="{% url 'library:borrowing_list' %}" class="btn">📚 Emprunts</a>
+    </div>
+
+    {% if overdue_borrowings %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Livre</th>
+                <th>Emprunt</th>
+                <th>Retour prévu</th>
+                <th>Retard</th>
+                <th>Pénalité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for borrowing in overdue_borrowings %}
+
+            <tr>
+
+                <td>{{ borrowing.user.username }}</td>
+
+                <td>{{ borrowing.book.title }}</td>
+
+                <td>{{ borrowing.borrow_date|date:"d/m/Y" }}</td>
+
+                <td>{{ borrowing.due_date|date:"d/m/Y" }}</td>
+
+                <td class="overdue-days">
+                    {{ borrowing.days_overdue }} jours
+                </td>
+
+                <td>{{ borrowing.penalty_amount }}€</td>
+
+                <td class="actions">
+                    <a href="{% url 'library:borrowing_detail' borrowing.id %}">
+                        👁️ Détails
+                    </a>
+
+                    <a href="{% url 'library:borrowing_return' borrowing.id %}">
+                        ✅ Retour
+                    </a>
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+    <div class="empty">
+        ✅ Aucun retard
+    </div>
+
+    {% endif %}
+
+</div>
+
 </body>
 </html>

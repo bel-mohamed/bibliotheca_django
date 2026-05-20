@@ -4,107 +4,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Bibliothèque</title>
+    <title>{{ title }} - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:650px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:35px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        .form-group {
-            margin-bottom: 20px;
+
+        @keyframes fadeIn{
+            from{opacity:0; transform:translateY(20px);}
+            to{opacity:1; transform:translateY(0);}
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:30px;
+            color:#222;
+            border-left:6px solid #8b5cf6;
+            padding-left:15px;
         }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+
+        /* FORM */
+        .form-group{
+            margin-bottom:22px;
         }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #007bff;
+
+        label{
+            display:block;
+            margin-bottom:10px;
+            font-weight:700;
+            color:#444;
         }
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
+
+        input,
+        select,
+        textarea{
+            width:100%;
+            padding:14px 16px;
+            border:2px solid #e5e7eb;
+            border-radius:14px;
+            font-size:15px;
+            transition:0.3s;
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        input:focus,
+        select:focus,
+        textarea:focus{
+            border-color:#8b5cf6;
+            box-shadow:0 0 12px rgba(139,92,246,0.2);
+            outline:none;
         }
-        .btn-cancel {
-            background-color: #6c757d;
+
+        /* BUTTONS */
+        .button-group{
+            margin-top:30px;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
         }
-        .btn-cancel:hover {
-            background-color: #545b62;
+
+        .btn{
+            padding:14px 22px;
+            border:none;
+            border-radius:14px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
         }
-        .error {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 5px;
+
+        .btn:hover{
+            transform:translateY(-2px);
         }
-        .help-text {
-            color: #6c757d;
-            font-size: 12px;
-            margin-top: 5px;
+
+        .btn-save{
+            background:linear-gradient(135deg,#22c55e,#15803d);
+            color:white;
         }
+
+        .btn-cancel{
+            background:linear-gradient(135deg,#6b7280,#4b5563);
+            color:white;
+        }
+
+        /* ERRORS */
+        .error{
+            margin-top:8px;
+            padding:10px 12px;
+            background:#fef2f2;
+            border:1px solid #fecaca;
+            border-radius:10px;
+            color:#dc2626;
+            font-size:14px;
+        }
+
+        .help-text{
+            margin-top:6px;
+            font-size:13px;
+            color:#6b7280;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:768px){
+            .container{padding:22px;}
+            h1{font-size:1.6rem;}
+            .button-group{flex-direction:column;}
+            .btn{width:100%;}
+        }
+
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>{{ title }}</h1>
-        
-        <form method="post">
-            {% csrf_token %}
-            
-            {% for field in form %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <div class="error">
-                    {% for error in field.errors %}
+
+<div class="container">
+
+    <h1>👤 {{ title }}</h1>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {% for field in form %}
+
+        <div class="form-group">
+
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% if field.errors %}
+            <div class="error">
+                {% for error in field.errors %}
                     {{ error }}
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% if field.help_text %}
-                <div class="help-text">{{ field.help_text }}</div>
-                {% endif %}
+                {% endfor %}
             </div>
-            {% endfor %}
-            
-            <div style="margin-top: 30px;">
-                <button type="submit" class="btn">💾 Enregistrer</button>
-                <a href="{% url 'library:user_list' %}" class="btn btn-cancel">❌ Annuler</a>
+            {% endif %}
+
+            {% if field.help_text %}
+            <div class="help-text">
+                {{ field.help_text }}
             </div>
-        </form>
-    </div>
+            {% endif %}
+
+        </div>
+
+        {% endfor %}
+
+        <div class="button-group">
+
+            <button type="submit" class="btn btn-save">
+                💾 Enregistrer
+            </button>
+
+            <a href="{% url 'library:user_list' %}" class="btn btn-cancel">
+                ❌ Annuler
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
 </body>
 </html>

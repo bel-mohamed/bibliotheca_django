@@ -4,125 +4,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des auteurs - Bibliothèque</title>
+    <title>Liste des auteurs - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:1250px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:30px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:25px;
+            color:#222;
+            border-left:6px solid #8b5cf6;
+            padding-left:15px;
+            display:flex;
+            align-items:center;
+            gap:10px;
         }
-        th {
-            background-color: #007bff;
-            color: white;
+
+        /* TOP BAR */
+
+        .top-bar{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
         }
-        tr:hover {
-            background-color: #f5f5f5;
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:12px 18px;
+            border-radius:12px;
+            text-decoration:none;
+            font-weight:600;
+            transition:0.3s;
+            color:white;
+            border:none;
+            cursor:pointer;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 5px 15px rgba(0,0,0,0.25);
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        .btn-primary{
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9);
         }
-        .btn-add {
-            background-color: #28a745;
+
+        .btn-add{
+            background:linear-gradient(135deg,#22c55e,#15803d);
         }
-        .btn-add:hover {
-            background-color: #1e7e34;
+
+        /* SEARCH */
+
+        .search-form{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            margin:20px 0 30px;
         }
-        .actions a {
-            margin-right: 10px;
-            color: #007bff;
-            text-decoration: none;
+
+        .search-form input{
+            flex:1;
+            min-width:260px;
+            padding:14px 16px;
+            border-radius:14px;
+            border:2px solid #e5e7eb;
+            transition:0.3s;
+            font-size:15px;
         }
+
+        .search-form input:focus{
+            border-color:#8b5cf6;
+            box-shadow:0 0 10px rgba(139,92,246,0.25);
+            outline:none;
+        }
+
+        .search-form button{
+            padding:14px 22px;
+            border:none;
+            border-radius:14px;
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+            color:white;
+            font-weight:700;
+            cursor:pointer;
+        }
+
+        /* TABLE */
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            border-radius:18px;
+            overflow:hidden;
+            background:white;
+            box-shadow:0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        thead{
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+            color:white;
+        }
+
+        th{
+            padding:18px 15px;
+            text-align:left;
+            font-size:15px;
+        }
+
+        td{
+            padding:16px 15px;
+            border-bottom:1px solid #f1f1f1;
+        }
+
+        tbody tr{
+            transition:0.3s;
+        }
+
+        tbody tr:hover{
+            background:#f8f5ff;
+        }
+
+        /* ACTIONS */
+
+        .actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .actions a{
+            text-decoration:none;
+            font-size:14px;
+            font-weight:600;
+            padding:8px 12px;
+            border-radius:10px;
+            transition:0.3s;
+        }
+
+        .actions a:hover{
+            transform:translateY(-2px);
+        }
+
+        .actions a:first-child{
+            background:#ecfdf3;
+            color:#16a34a;
+        }
+
+        .actions a:last-child{
+            background:#fef2f2;
+            color:#dc2626;
+        }
+
+        /* EMPTY */
+
+        .empty-state{
+            text-align:center;
+            padding:60px 20px;
+            color:#666;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+
+            .container{
+                padding:20px;
+            }
+
+            h1{
+                font-size:1.5rem;
+            }
+
+            table{
+                display:block;
+                overflow-x:auto;
+                white-space:nowrap;
+            }
+
+            .search-form{
+                flex-direction:column;
+            }
+
+            .search-form button{
+                width:100%;
+            }
+
+            .top-bar{
+                flex-direction:column;
+            }
+
+            .btn{
+                width:100%;
+            }
+        }
+
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>✍️ Liste des auteurs</h1>
-        
-        <div>
-            {% if can_manage_authors %}
-            <a href="{% url 'library:author_add' %}" class="btn btn-add">➕ Ajouter un auteur</a>
-            {% endif %}
-            <a href="{% url portal_dashboard_url %}" class="btn">🏠 Retour au tableau de bord</a>
-        </div>
 
-        {% if authors %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Nationalité</th>
-                    <th>Date de naissance</th>
-                    <th>Nombre de livres</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for author in authors %}
-                <tr>
-                    <td>{{ author.last_name }}</td>
-                    <td>{{ author.first_name }}</td>
-                    <td>{{ author.nationality|default:"-" }}</td>
-                    <td>
-                        {% if author.birth_date %}
-                        {{ author.birth_date|date:"d/m/Y" }}
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
-                    <td>{{ author.books.count }}</td>
-                    <td class="actions">
-                        {% if can_manage_authors %}
-                        <a href="{% url 'library:author_edit' author.id %}">✏️ Modifier</a>
-                        <a href="{% url 'library:author_delete' author.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
-                        {% else %}
-                        —
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div style="text-align: center; padding: 40px; color: #666;">
-            <p>Aucun auteur n'est enregistré.</p>
-            {% if can_manage_authors %}
-            <a href="{% url 'library:author_add' %}" class="btn btn-add">Ajouter votre premier auteur</a>
-            {% endif %}
-        </div>
+<body>
+
+<div class="container">
+
+    <h1>✍️ Liste des auteurs</h1>
+
+    <div class="top-bar">
+
+        {% if can_manage_authors %}
+        <a href="{% url 'library:author_add' %}" class="btn btn-add">
+            ➕ Ajouter un auteur
+        </a>
         {% endif %}
+
+        <a href="{% url portal_dashboard_url %}" class="btn btn-primary">
+            🏠 Retour au tableau de bord
+        </a>
+
     </div>
+
+    <form method="get" class="search-form">
+
+        <input
+            type="text"
+            name="q"
+            placeholder="Rechercher auteurs, nationalité ou livres..."
+            value="{{ query }}"
+        >
+
+        <button type="submit">
+            🔍 Rechercher
+        </button>
+
+    </form>
+
+    {% if authors %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Nationalité</th>
+                <th>Date naissance</th>
+                <th>Livres</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for author in authors %}
+
+            <tr>
+
+                <td>{{ author.last_name }}</td>
+                <td>{{ author.first_name }}</td>
+                <td>{{ author.nationality|default:"-" }}</td>
+
+                <td>
+                    {% if author.birth_date %}
+                        {{ author.birth_date|date:"d/m/Y" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ author.books.count }}
+                </td>
+
+                <td class="actions">
+
+                    {% if can_manage_authors %}
+
+                    <a href="{% url 'library:author_edit' author.id %}">
+                        ✏️ Modifier
+                    </a>
+
+                    <a href="{% url 'library:author_delete' author.id %}">
+                        🗑️ Supprimer
+                    </a>
+
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% if page_obj.has_other_pages %}
+
+    <div class="empty-state">
+        <!-- pagination could go here if needed -->
+    </div>
+
+    {% endif %}
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <p>Aucun auteur n'est enregistré.</p>
+
+        {% if can_manage_authors %}
+        <a href="{% url 'library:author_add' %}" class="btn btn-add">
+            ➕ Ajouter le premier auteur
+        </a>
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+</div>
+
 </body>
 </html>

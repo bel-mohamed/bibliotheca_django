@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des catégories - Bibliothèque</title>
+    <title>Liste des catégories - Bibliotheca</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,6 +59,30 @@
         .btn-add:hover {
             background-color: #1e7e34;
         }
+        .search-form {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-form input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: #0056b3;
+        }
         .actions a {
             margin-right: 10px;
             color: #007bff;
@@ -71,9 +95,16 @@
         <h1>📚 Liste des catégories</h1>
         
         <div>
+            {% if request.user.is_admin %}
             <a href="{% url 'library:category_add' %}" class="btn btn-add">➕ Ajouter une catégorie</a>
+            {% endif %}
             <a href="{% url portal_dashboard_url %}" class="btn">🏠 Retour au tableau de bord</a>
         </div>
+
+        <form method="get" class="search-form">
+            <input type="text" name="q" placeholder="Rechercher par nom ou description..." value="{{ query }}">
+            <button type="submit">Rechercher</button>
+        </form>
 
         {% if categories %}
         <table>
@@ -92,8 +123,12 @@
                     <td>{{ category.description|default:"-" }}</td>
                     <td>{{ category.book_count }}</td>
                     <td class="actions">
+                        {% if request.user.is_admin %}
                         <a href="{% url 'library:category_edit' category.id %}">✏️ Modifier</a>
                         <a href="{% url 'library:category_delete' category.id %}" onclick="return confirm('Confirmer la suppression ?')">🗑️ Supprimer</a>
+                        {% else %}
+                        —
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}

@@ -4,162 +4,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails de l'emprunt - Bibliothèque</title>
+    <title>Détails de l'emprunt - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:850px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:35px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        .detail-row {
-            display: flex;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
         }
-        .detail-label {
-            font-weight: bold;
-            width: 200px;
-            color: #333;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:25px;
+            color:#222;
+            border-left:6px solid #8b5cf6;
+            padding-left:15px;
         }
-        .detail-value {
-            flex: 1;
-            color: #555;
+
+        /* DETAILS */
+
+        .detail-row{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            padding:14px 16px;
+            margin-bottom:12px;
+            background:#f8fafc;
+            border-radius:14px;
+            border:1px solid #eef2f7;
+            transition:0.3s;
         }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+
+        .detail-row:hover{
+            background:#f3f0ff;
         }
-        .badge-active {
-            background-color: #28a745;
-            color: white;
+
+        .detail-label{
+            width:220px;
+            font-weight:800;
+            color:#4b5563;
         }
-        .badge-returned {
-            background-color: #17a2b8;
-            color: white;
+
+        .detail-value{
+            flex:1;
+            color:#111827;
+            font-weight:500;
         }
-        .badge-overdue {
-            background-color: #dc3545;
-            color: white;
+
+        /* BADGES */
+
+        .badge{
+            padding:6px 10px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:800;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
+
+        .badge-active{
+            background:#dcfce7;
+            color:#15803d;
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        .badge-returned{
+            background:#dbeafe;
+            color:#1d4ed8;
         }
-        .btn-success {
-            background-color: #28a745;
+
+        .badge-overdue{
+            background:#fee2e2;
+            color:#b91c1c;
         }
-        .btn-success:hover {
-            background-color: #1e7e34;
+
+        /* BUTTONS */
+
+        .btn-group{
+            margin-top:30px;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
         }
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:14px 20px;
+            border-radius:14px;
+            text-decoration:none;
+            font-weight:800;
+            transition:0.3s;
+            color:white;
+        }
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-back{
+            background:linear-gradient(135deg,#6b7280,#4b5563);
+        }
+
+        .btn-success{
+            background:linear-gradient(135deg,#22c55e,#15803d);
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+
+            .container{
+                padding:24px;
+            }
+
+            h1{
+                font-size:1.6rem;
+            }
+
+            .detail-label{
+                width:100%;
+            }
+
+            .detail-row{
+                flex-direction:column;
+            }
+
+            .btn-group{
+                flex-direction:column;
+            }
+
+            .btn{
+                width:100%;
+            }
+        }
+
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>📚 Détails de l'emprunt</h1>
-        
-        <div class="detail-row">
-            <div class="detail-label">ID:</div>
-            <div class="detail-value">{{ borrowing.id }}</div>
+
+<div class="container">
+
+    <h1>📚 Détails de l'emprunt</h1>
+
+    <div class="detail-row">
+        <div class="detail-label">ID</div>
+        <div class="detail-value">{{ borrowing.id }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Utilisateur</div>
+        <div class="detail-value">
+            {{ borrowing.user.username }}
+            ({{ borrowing.user.first_name }} {{ borrowing.user.last_name }})
         </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Utilisateur:</div>
-            <div class="detail-value">{{ borrowing.user.username }} ({{ borrowing.user.first_name }} {{ borrowing.user.last_name }})</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Livre</div>
+        <div class="detail-value">
+            {{ borrowing.book.title }} (ISBN: {{ borrowing.book.isbn }})
         </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Livre:</div>
-            <div class="detail-value">{{ borrowing.book.title }} (ISBN: {{ borrowing.book.isbn }})</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Date d'emprunt:</div>
-            <div class="detail-value">{{ borrowing.borrow_date|date:"d/m/Y H:i" }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Date de retour prévue:</div>
-            <div class="detail-value">{{ borrowing.due_date|date:"d/m/Y" }}</div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Date de retour:</div>
-            <div class="detail-value">
-                {% if borrowing.return_date %}
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Date d'emprunt</div>
+        <div class="detail-value">{{ borrowing.borrow_date|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Date prévue</div>
+        <div class="detail-value">{{ borrowing.due_date|date:"d/m/Y" }}</div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Retour</div>
+        <div class="detail-value">
+            {% if borrowing.return_date %}
                 {{ borrowing.return_date|date:"d/m/Y H:i" }}
-                {% else %}
-                -
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Statut:</div>
-            <div class="detail-value">
-                <span class="badge badge-{{ borrowing.status }}">{{ borrowing.get_status_display }}</span>
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Pénalité:</div>
-            <div class="detail-value">
-                {% if borrowing.penalty_amount > 0 %}
-                {{ borrowing.penalty_amount }}€
-                {% else %}
-                -
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="detail-row">
-            <div class="detail-label">Pénalité payée:</div>
-            <div class="detail-value">
-                {% if borrowing.penalty_paid %}
-                ✓ Oui
-                {% else %}
-                ✗ Non
-                {% endif %}
-            </div>
-        </div>
-        
-        {% if borrowing.notes %}
-        <div class="detail-row">
-            <div class="detail-label">Notes:</div>
-            <div class="detail-value">{{ borrowing.notes }}</div>
-        </div>
-        {% endif %}
-        
-        <div style="margin-top: 30px;">
-            <a href="{% url 'library:borrowing_list' %}" class="btn">🔙 Retour à la liste</a>
-            {% if borrowing.status != 'returned' %}
-            <a href="{% url 'library:borrowing_return' borrowing.id %}" class="btn btn-success">✅ Marquer comme retourné</a>
+            {% else %}
+                —
             {% endif %}
         </div>
     </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Statut</div>
+        <div class="detail-value">
+            <span class="badge badge-{{ borrowing.status }}">
+                {{ borrowing.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Pénalité</div>
+        <div class="detail-value">
+            {% if borrowing.penalty_amount > 0 %}
+                {{ borrowing.penalty_amount }}€
+            {% else %}
+                —
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="detail-label">Pénalité payée</div>
+        <div class="detail-value">
+            {% if borrowing.penalty_paid %}
+                ✓ Oui
+            {% else %}
+                ✗ Non
+            {% endif %}
+        </div>
+    </div>
+
+    {% if borrowing.notes %}
+
+    <div class="detail-row">
+        <div class="detail-label">Notes</div>
+        <div class="detail-value">{{ borrowing.notes }}</div>
+    </div>
+
+    {% endif %}
+
+    <div class="btn-group">
+
+        <a href="{% url 'library:borrowing_list' %}" class="btn btn-back">
+            🔙 Retour
+        </a>
+
+        {% if borrowing.status != 'returned' %}
+
+        <a href="{% url 'library:borrowing_return' borrowing.id %}" class="btn btn-success">
+            ✅ Retourner
+        </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
 </body>
 </html>

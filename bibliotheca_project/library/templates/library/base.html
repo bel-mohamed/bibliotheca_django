@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Bibliothèque{% endblock %}</title>
+    <title>{% block title %}Bibliotheca{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,7 +20,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-book"></i> Bibliothèque
+                <i class="fas fa-book"></i> Bibliotheca
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -40,7 +40,7 @@
                                     <li><h6 class="dropdown-header">Gestion des utilisateurs</h6></li>
                                     <li><a class="dropdown-item" href="{% url 'library:user_list' %}"><i class="fas fa-users"></i> Utilisateurs</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><h6 class="dropdown-header">Gestion bibliothèque</h6></li>
+                                    <li><h6 class="dropdown-header">Gestion Bibliotheca</h6></li>
                                     <li><a class="dropdown-item" href="{% url 'library:book_list' %}"><i class="fas fa-book"></i> Livres</a></li>
                                     <li><a class="dropdown-item" href="{% url 'library:author_list' %}"><i class="fas fa-user-edit"></i> Auteurs</a></li>
                                     <li><a class="dropdown-item" href="{% url 'library:category_list' %}"><i class="fas fa-tags"></i> Catégories</a></li>
@@ -135,8 +135,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5><i class="fas fa-book"></i> Bibliothèque</h5>
-                    <p>Système de gestion de bibliothèque moderne et efficace.</p>
+                    <h5><i class="fas fa-book"></i> Bibliotheca</h5>
+                    <p>Système de gestion Bibliotheca moderne et efficace.</p>
                 </div>
                 <div class="col-md-6">
                     <h5>Liens rapides</h5>
@@ -154,7 +154,7 @@
             </div>
             <hr class="bg-light">
             <div class="text-center">
-                <p>&copy; 2026 Bibliothèque. Tous droits réservés.</p>
+                <p>&copy; 2026 Bibliotheca. Tous droits réservés.</p>
             </div>
         </div>
     </footer>

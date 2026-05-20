@@ -1,4 +1,4 @@
-{% extends 'library/layouts/base_bibliothecaire.html' %}
+{% extends 'library/layouts/base_administrateur.html' %}
 {% load static %}
 
 {% block title %}Détails Réclamation - Bibliotheca{% endblock %}
@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class="fas fa-exclamation-circle"></i> Détails de la Réclamation</h2>
                 <div>
-                    <a href="{% url 'library:reclamation_list' %}" class="btn btn-secondary">
+                    <a href="{% url 'library:admin_reclamation_list' %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
                 </div>
@@ -89,7 +89,7 @@
                     {% endif %}
                     
                     {% if reclamation.status != 'resolved' and reclamation.status != 'rejected' %}
-                        <div class="card">
+                        <div class="card mt-3">
                             <div class="card-header">
                                 <h6 class="mb-0">Actions</h6>
                             </div>
@@ -106,19 +106,16 @@
                                 
                                 <form method="post" id="resolveForm">
                                     {% csrf_token %}
-                                    <input type="hidden" name="action" value="resolve">
-                                    
+                                    <input type="hidden" name="action" value="resolve" id="resolveActionInput">
                                     <div class="mb-3">
                                         <label for="response" class="form-label">Réponse à l'utilisateur</label>
-                                        <textarea class="form-control" id="response" name="response" rows="4" 
-                                                  placeholder="Tapez votre réponse ici..."></textarea>
+                                        <textarea class="form-control" id="response" name="response" rows="4" placeholder="Tapez votre réponse ici..."></textarea>
                                     </div>
-                                    
                                     <div class="d-flex gap-2">
                                         <button type="submit" class="btn btn-success">
                                             <i class="fas fa-check"></i> Résoudre
                                         </button>
-                                        <button type="submit" class="btn btn-danger" onclick="document.getElementById('resolveForm').action.value='reject'">
+                                        <button type="button" class="btn btn-danger" onclick="document.getElementById('resolveActionInput').value='reject'; document.getElementById('resolveForm').submit();">
                                             <i class="fas fa-times"></i> Rejeter
                                         </button>
                                     </div>
@@ -144,6 +141,8 @@
                     <p><strong>Type de compte :</strong>
                         {% if reclamation.user.is_librarian %}
                             <span class="badge bg-danger">Bibliothécaire</span>
+                        {% elif reclamation.user.is_admin %}
+                            <span class="badge bg-warning">Administrateur</span>
                         {% else %}
                             <span class="badge bg-primary">Membre</span>
                         {% endif %}
@@ -180,32 +179,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.timeline-item {
-    border-left: 3px solid #007bff;
-    padding-left: 15px;
-    margin-bottom: 15px;
-}
-
-.timeline-item small {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-</style>
 {% endblock %}

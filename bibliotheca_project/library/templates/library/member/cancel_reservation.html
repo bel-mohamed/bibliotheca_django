@@ -1,0 +1,22 @@
+{% extends 'library/layouts/base_etudiant.html' %}
+{% block title %}Annuler Réservation{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">Annuler la réservation</div>
+                <div class="card-body">
+                    <p>Voulez-vous vraiment annuler la réservation pour <strong>{{ reservation.book.title }}</strong> ?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Oui, annuler</button>
+                        <a href="{% url 'library:my_reservations' %}" class="btn btn-secondary">Non, revenir</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

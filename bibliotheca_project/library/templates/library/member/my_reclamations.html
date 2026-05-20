@@ -1,7 +1,7 @@
 {% extends 'library/layouts/base_etudiant.html' %}
 {% load static %}
 
-{% block title %}Mes Réclamations - Bibliothèque{% endblock %}
+{% block title %}Mes Réclamations - Bibliotheca{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    {% if page_obj %}
+    {% if page_obj and page_obj.object_list %}
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -78,77 +78,11 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    
-                                    <!-- Modal pour les détails -->
-                                    <div class="modal fade" id="reclamationModal{{ reclamation.id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">{{ reclamation.subject }}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <strong>Priorité :</strong>
-                                                        {% if reclamation.priority == 'urgent' %}
-                                                            <span class="badge bg-danger">Urgente</span>
-                                                        {% elif reclamation.priority == 'high' %}
-                                                            <span class="badge bg-warning">Élevée</span>
-                                                        {% elif reclamation.priority == 'medium' %}
-                                                            <span class="badge bg-info">Moyenne</span>
-                                                        {% else %}
-                                                            <span class="badge bg-secondary">Faible</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    
-                                                    <div class="mb-3">
-                                                        <strong>Date :</strong> {{ reclamation.created_date|date:"d/m/Y H:i" }}
-                                                    </div>
-                                                    
-                                                    <div class="mb-3">
-                                                        <strong>Statut :</strong>
-                                                        {% if reclamation.status == 'pending' %}
-                                                            <span class="badge bg-warning">En attente</span>
-                                                        {% elif reclamation.status == 'in_progress' %}
-                                                            <span class="badge bg-info">En cours</span>
-                                                        {% elif reclamation.status == 'resolved' %}
-                                                            <span class="badge bg-success">Résolu</span>
-                                                        {% else %}
-                                                            <span class="badge bg-danger">Rejeté</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    
-                                                    <div class="mb-3">
-                                                        <strong>Votre message :</strong>
-                                                        <div class="border rounded p-3 mt-2 bg-light">
-                                                            {{ reclamation.message|linebreaks }}
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    {% if reclamation.admin_response %}
-                                                        <div class="mb-3">
-                                                            <strong>Réponse de l'administration :</strong>
-                                                            <div class="border rounded p-3 mt-2 bg-success bg-opacity-10">
-                                                                {{ reclamation.admin_response|linebreaks }}
-                                                            </div>
-                                                            {% if reclamation.resolved_date %}
-                                                                <small class="text-muted">Réponse le {{ reclamation.resolved_date|date:"d/m/Y H:i" }}</small>
-                                                            {% endif %}
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Pagination -->
                         {% if page_obj.has_other_pages %}
                         <nav aria-label="Pagination des réclamations">
                             <ul class="pagination justify-content-center">
@@ -157,19 +91,13 @@
                                         <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
                                     </li>
                                 {% endif %}
-                                
                                 {% for num in page_obj.paginator.page_range %}
                                     {% if page_obj.number == num %}
-                                        <li class="page-item active">
-                                            <span class="page-link">{{ num }}</span>
-                                        </li>
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                                        </li>
+                                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
                                     {% endif %}
                                 {% endfor %}
-                                
                                 {% if page_obj.has_next %}
                                     <li class="page-item">
                                         <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
@@ -182,13 +110,79 @@
                 </div>
             </div>
         </div>
+
+        {% for reclamation in page_obj %}
+        <div class="modal fade" id="reclamationModal{{ reclamation.id }}" tabindex="-1" aria-labelledby="reclamationModalLabel{{ reclamation.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reclamationModalLabel{{ reclamation.id }}">{{ reclamation.subject }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <strong>Priorité :</strong>
+                            {% if reclamation.priority == 'urgent' %}
+                                <span class="badge bg-danger">Urgente</span>
+                            {% elif reclamation.priority == 'high' %}
+                                <span class="badge bg-warning">Élevée</span>
+                            {% elif reclamation.priority == 'medium' %}
+                                <span class="badge bg-info">Moyenne</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Faible</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Date :</strong> {{ reclamation.created_date|date:"d/m/Y H:i" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Statut :</strong>
+                            {% if reclamation.status == 'pending' %}
+                                <span class="badge bg-warning">En attente</span>
+                            {% elif reclamation.status == 'in_progress' %}
+                                <span class="badge bg-info">En cours</span>
+                            {% elif reclamation.status == 'resolved' %}
+                                <span class="badge bg-success">Résolu</span>
+                            {% else %}
+                                <span class="badge bg-danger">Rejeté</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Votre message :</strong>
+                            <div class="border rounded p-3 mt-2 bg-light">
+                                {{ reclamation.message|linebreaks }}
+                            </div>
+                        </div>
+
+                        {% if reclamation.admin_response %}
+                            <div class="mb-3">
+                                <strong>Réponse de l'administration :</strong>
+                                <div class="border rounded p-3 mt-2 bg-success bg-opacity-10">
+                                    {{ reclamation.admin_response|linebreaks }}
+                                </div>
+                                {% if reclamation.resolved_date %}
+                                    <small class="text-muted">Réponse le {{ reclamation.resolved_date|date:"d/m/Y H:i" }}</small>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     {% else %}
         <div class="row">
             <div class="col-12">
                 <div class="alert alert-info text-center">
                     <i class="fas fa-info-circle fa-3x mb-3"></i>
                     <h5>Vous n'avez aucune réclamation</h5>
-                    <p class="mb-3">Besoin d'aide ou avez-vous une question ? Envoyez une réclamation à l'équipe de la bibliothèque.</p>
+                    <p class="mb-3">Besoin d'aide ou avez-vous une question ? Envoyez une réclamation à l'équipe de la Bibliotheca.</p>
                     <a href="{% url 'library:create_reclamation' %}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Créer une réclamation
                     </a>
@@ -219,4 +213,68 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark reclamation response as read when modal is shown
+    var modals = document.querySelectorAll('[id^="reclamationModal"]');
+    modals.forEach(function(modalEl) {
+        modalEl.addEventListener('shown.bs.modal', function (event) {
+            var id = modalEl.id.replace('reclamationModal', '');
+            var csrftoken = getCookie('csrftoken');
+            fetch('{% url "library:mark_reclamation_read" 0 %}'.replace('/0/', '/' + id + '/'), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }).then(function(res) {
+                if (!res.ok) return;
+                // Optionally update badge counts in the UI
+                var badge = document.querySelector('.nav-link .badge[aria-label="reclamation-unread"]');
+                if (badge) {
+                    var count = parseInt(badge.textContent || '0', 10);
+                    if (count > 0) {
+                        badge.textContent = count - 1;
+                        if (count - 1 <= 0) badge.remove();
+                    }
+                }
+            }).catch(function(){ });
+        });
+    });
+
+    // Cancel reservation via AJAX
+    document.querySelectorAll('.btn-cancel-reservation').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            if (!confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) return;
+            var id = this.getAttribute('data-id');
+            var csrftoken = getCookie('csrftoken');
+            var row = this.closest('tr');
+            fetch('{% url "library:cancel_reservation" 0 %}'.replace('/0/', '/' + id + '/'), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }).then(function(res){
+                return res.json();
+            }).then(function(data){
+                if (data.success) {
+                    // remove the table row
+                    if (row) row.remove();
+                    // show toast
+                    window.Bibliotheque.showToast('Réservation annulée.', 'success');
+                }
+            }).catch(function(){
+                window.Bibliotheque.showToast('Erreur lors de l\'annulation.', 'error');
+            });
+        });
+    });
+});
+</script>
+
 {% endblock %}

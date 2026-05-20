@@ -1,179 +1,361 @@
+```html id="l9x2qm"
 <!-- library/templates/library/librarian/penalty_mark_paid.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marquer pénalité payée - Bibliothèque</title>
+    <title>Marquer pénalité payée - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 720px;
-            margin: 0 auto;
-            background: white;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            font-size: 1.5rem;
+
+        .container{
+            max-width:760px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:32px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        h2 {
-            font-size: 1.1rem;
-            color: #555;
-            margin-top: 24px;
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
         }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 16px 0;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:25px;
+            color:#222;
+            border-left:6px solid #8b5cf6;
+            padding-left:15px;
         }
-        .info-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 6px;
+
+        h2{
+            font-size:1.2rem;
+            color:#444;
+            margin:25px 0 15px;
         }
-        .info-label {
-            font-size: 12px;
-            color: #6c757d;
-            text-transform: uppercase;
+
+        /* INFO GRID */
+
+        .info-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+            margin-top:20px;
         }
-        .info-value {
-            font-weight: bold;
-            margin-top: 4px;
+
+        .info-item{
+            background:#f8f5ff;
+            border:1px solid #ece8ff;
+            padding:18px;
+            border-radius:16px;
+            transition:0.3s;
         }
-        .totals-box {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 16px;
-            margin: 20px 0;
+
+        .info-item:hover{
+            transform:translateY(-2px);
+            box-shadow:0 4px 12px rgba(139,92,246,0.15);
         }
-        .totals-box h2 {
-            margin-top: 0;
-            color: #856404;
+
+        .info-label{
+            font-size:12px;
+            color:#7c7c8a;
+            text-transform:uppercase;
+            letter-spacing:1px;
+            margin-bottom:8px;
         }
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid #ffe69c;
+
+        .info-value{
+            font-weight:700;
+            color:#222;
+            font-size:15px;
         }
-        .total-row:last-child {
-            border-bottom: none;
-            font-size: 1.15rem;
-            font-weight: bold;
-            margin-top: 8px;
-            padding-top: 12px;
+
+        .highlight-amount{
+            color:#dc2626;
+            font-size:1.4rem;
+            font-weight:800;
         }
-        .form-group {
-            margin-bottom: 16px;
+
+        /* TOTAL BOX */
+
+        .totals-box{
+            margin-top:30px;
+            background:linear-gradient(135deg,#f5f3ff,#ede9fe);
+            border:1px solid #d8b4fe;
+            border-radius:20px;
+            padding:24px;
         }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 6px;
+
+        .totals-box h2{
+            margin-top:0;
+            color:#6d28d9;
         }
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+
+        .total-row{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:12px 0;
+            border-bottom:1px solid #ddd6fe;
+            font-size:15px;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 18px;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 15px;
-            margin-right: 8px;
+
+        .total-row:last-child{
+            border-bottom:none;
+            margin-top:10px;
+            padding-top:18px;
+            font-size:1.2rem;
+            font-weight:800;
+            color:#6d28d9;
         }
-        .btn-success { background-color: #28a745; }
-        .btn-success:hover { background-color: #1e7e34; }
-        .btn-secondary { background-color: #6c757d; }
-        .btn-secondary:hover { background-color: #545b62; }
-        .highlight-amount {
-            color: #dc3545;
-            font-size: 1.25rem;
+
+        /* FORM */
+
+        form{
+            margin-top:30px;
         }
+
+        .form-group{
+            margin-bottom:24px;
+        }
+
+        label{
+            display:block;
+            font-weight:700;
+            margin-bottom:10px;
+            color:#444;
+        }
+
+        select{
+            width:100%;
+            padding:14px 16px;
+            border:2px solid #e5e7eb;
+            border-radius:14px;
+            font-size:15px;
+            outline:none;
+            transition:0.3s;
+            background:white;
+        }
+
+        select:focus{
+            border-color:#8b5cf6;
+            box-shadow:0 0 12px rgba(139,92,246,0.2);
+        }
+
+        /* BUTTONS */
+
+        .button-group{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-top:30px;
+        }
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:14px 22px;
+            border:none;
+            border-radius:14px;
+            text-decoration:none;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.3s ease;
+            font-size:15px;
+            color:white;
+        }
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-success{
+            background:linear-gradient(135deg,#22c55e,#15803d);
+        }
+
+        .btn-secondary{
+            background:linear-gradient(135deg,#6b7280,#4b5563);
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+
+            .container{
+                padding:22px;
+            }
+
+            h1{
+                font-size:1.6rem;
+            }
+
+            .info-grid{
+                grid-template-columns:1fr;
+            }
+
+            .button-group{
+                flex-direction:column;
+            }
+
+            .btn{
+                width:100%;
+            }
+        }
+
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Marquer la pénalité comme payée</h1>
 
-        <h2>Pénalité en cours</h2>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">Étudiant</div>
-                <div class="info-value">{{ penalty.user.get_full_name|default:penalty.user.username }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Identifiant</div>
-                <div class="info-value">{{ penalty.user.username }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Livre</div>
-                <div class="info-value">{{ penalty.borrowing.book.title }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Emprunt</div>
-                <div class="info-value">#{{ penalty.borrowing.id }}</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Montant de cette pénalité</div>
-                <div class="info-value highlight-amount">{{ penalty.amount }} €</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Date</div>
-                <div class="info-value">{{ penalty.created_date|date:"d/m/Y H:i" }}</div>
+<div class="container">
+
+    <h1>💳 Marquer la pénalité comme payée</h1>
+
+    <h2>Pénalité en cours</h2>
+
+    <div class="info-grid">
+
+        <div class="info-item">
+            <div class="info-label">Étudiant</div>
+            <div class="info-value">
+                {{ penalty.user.get_full_name|default:penalty.user.username }}
             </div>
         </div>
 
-        <div class="totals-box">
-            <h2>Total des pénalités de l'étudiant</h2>
-            <div class="total-row">
-                <span>En attente ({{ student_totals.count_pending }})</span>
-                <span>{{ student_totals.total_pending }} €</span>
-            </div>
-            <div class="total-row">
-                <span>Déjà payées ({{ student_totals.count_paid }})</span>
-                <span>{{ student_totals.total_paid }} €</span>
-            </div>
-            <div class="total-row">
-                <span>Total général</span>
-                <span>{{ student_totals.total_all }} €</span>
+        <div class="info-item">
+            <div class="info-label">Identifiant</div>
+            <div class="info-value">
+                {{ penalty.user.username }}
             </div>
         </div>
 
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="payment_method">Mode de paiement</label>
-                <select name="payment_method" id="payment_method" required>
-                    <option value="cash">Espèces</option>
-                    <option value="card">Carte bancaire</option>
-                    <option value="transfer">Virement</option>
-                    <option value="check">Chèque</option>
-                </select>
+        <div class="info-item">
+            <div class="info-label">Livre</div>
+            <div class="info-value">
+                {{ penalty.borrowing.book.title }}
             </div>
-            <div style="margin-top: 24px;">
-                <button type="submit" class="btn btn-success">Confirmer le paiement</button>
-                <a href="{% url 'library:penalty_list' %}" class="btn btn-secondary">Annuler</a>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Emprunt</div>
+            <div class="info-value">
+                #{{ penalty.borrowing.id }}
             </div>
-        </form>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Montant de cette pénalité</div>
+            <div class="info-value highlight-amount">
+                {{ penalty.amount }} €
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-label">Date</div>
+            <div class="info-value">
+                {{ penalty.created_date|date:"d/m/Y H:i" }}
+            </div>
+        </div>
+
     </div>
+
+    <div class="totals-box">
+
+        <h2>📊 Total des pénalités de l'étudiant</h2>
+
+        <div class="total-row">
+            <span>En attente ({{ student_totals.count_pending }})</span>
+            <span>{{ student_totals.total_pending }} €</span>
+        </div>
+
+        <div class="total-row">
+            <span>Déjà payées ({{ student_totals.count_paid }})</span>
+            <span>{{ student_totals.total_paid }} €</span>
+        </div>
+
+        <div class="total-row">
+            <span>Total général</span>
+            <span>{{ student_totals.total_all }} €</span>
+        </div>
+
+    </div>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div class="form-group">
+
+            <label for="payment_method">
+                Mode de paiement
+            </label>
+
+            <select name="payment_method" id="payment_method" required>
+
+                <option value="cash">
+                    Espèces
+                </option>
+
+                <option value="card">
+                    Carte bancaire
+                </option>
+
+                <option value="transfer">
+                    Virement
+                </option>
+
+                <option value="check">
+                    Chèque
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="button-group">
+
+            <button type="submit" class="btn btn-success">
+                ✅ Confirmer le paiement
+            </button>
+
+            <a href="{% url 'library:penalty_list' %}" class="btn btn-secondary">
+                ❌ Annuler
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
 </body>
 </html>
+```

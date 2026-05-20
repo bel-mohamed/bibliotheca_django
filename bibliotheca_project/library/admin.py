@@ -73,7 +73,10 @@ class PenaltyAdmin(admin.ModelAdmin):
     
     def mark_as_paid(self, request, queryset):
         """Mark selected penalties as paid"""
-        updated = queryset.filter(status='pending').update(status='paid')
+        updated = 0
+        for penalty in queryset.filter(status='pending'):
+            penalty.mark_as_paid()
+            updated += 1
         self.message_user(request, f'{updated} pénalités marquées comme payées.')
     mark_as_paid.short_description = 'Marquer les pénalités sélectionnées comme payées'
 

@@ -4,134 +4,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des pénalités - Bibliothèque</title>
+    <title>Liste des pénalités - Bibliotheca</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        body{
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+            min-height:100vh;
+            padding:30px 15px;
+            color:#333;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+
+        .container{
+            max-width:1300px;
+            margin:auto;
+            background:rgba(255,255,255,0.96);
+            backdrop-filter:blur(12px);
+            border-radius:24px;
+            padding:30px;
+            box-shadow:0 12px 35px rgba(0,0,0,0.25);
+            animation:fadeIn .5s ease;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+
+        h1{
+            font-size:2rem;
+            margin-bottom:25px;
+            color:#222;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            border-left:6px solid #8b5cf6;
+            padding-left:15px;
         }
-        th {
-            background-color: #007bff;
-            color: white;
+
+        /* TOP ACTIONS */
+
+        .top-actions{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-bottom:25px;
         }
-        tr:hover {
-            background-color: #f5f5f5;
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:12px 18px;
+            border-radius:12px;
+            text-decoration:none;
+            font-weight:600;
+            transition:0.3s ease;
+            color:white;
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9);
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
+
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 5px 15px rgba(0,0,0,0.25);
         }
-        .btn:hover {
-            background-color: #0056b3;
+
+        /* SEARCH */
+
+        .search-form{
+            margin:25px 0;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
         }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+
+        .search-form input[type="text"]{
+            flex:1;
+            min-width:260px;
+            padding:14px 18px;
+            border:2px solid #eee;
+            border-radius:14px;
+            font-size:15px;
+            outline:none;
+            transition:0.3s;
         }
-        .badge-pending {
-            background-color: #dc3545;
-            color: white;
+
+        .search-form input[type="text"]:focus{
+            border-color:#8b5cf6;
+            box-shadow:0 0 12px rgba(139,92,246,0.25);
         }
-        .badge-paid {
-            background-color: #28a745;
-            color: white;
+
+        .search-form button{
+            padding:14px 24px;
+            border:none;
+            border-radius:14px;
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
         }
-        .badge-waived {
-            background-color: #6c757d;
-            color: white;
+
+        .search-form button:hover{
+            transform:scale(1.05);
         }
-        .actions a {
-            margin-right: 10px;
-            color: #007bff;
-            text-decoration: none;
+
+        /* TABLE */
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            overflow:hidden;
+            border-radius:18px;
+            background:white;
+            box-shadow:0 5px 20px rgba(0,0,0,0.08);
         }
+
+        thead{
+            background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+            color:white;
+        }
+
+        th{
+            padding:18px 15px;
+            text-align:left;
+            font-size:15px;
+            letter-spacing:0.5px;
+        }
+
+        td{
+            padding:16px 15px;
+            border-bottom:1px solid #f1f1f1;
+        }
+
+        tbody tr{
+            transition:0.3s;
+        }
+
+        tbody tr:hover{
+            background:#f8f5ff;
+        }
+
+        /* BADGES */
+
+        .badge{
+            display:inline-block;
+            padding:7px 12px;
+            border-radius:30px;
+            font-size:12px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+        }
+
+        .badge-pending{
+            background:linear-gradient(135deg,#ef4444,#dc2626);
+            color:white;
+        }
+
+        .badge-paid{
+            background:linear-gradient(135deg,#22c55e,#15803d);
+            color:white;
+        }
+
+        .badge-waived{
+            background:linear-gradient(135deg,#6b7280,#4b5563);
+            color:white;
+        }
+
+        /* AMOUNT */
+
+        .amount{
+            font-weight:bold;
+            color:#6d28d9;
+            font-size:15px;
+        }
+
+        /* ACTIONS */
+
+        .actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .actions a{
+            text-decoration:none;
+            font-size:14px;
+            font-weight:600;
+            transition:0.3s;
+            padding:8px 12px;
+            border-radius:10px;
+            background:#ecfdf3;
+            color:#16a34a;
+        }
+
+        .actions a:hover{
+            transform:translateY(-2px);
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* PAGINATION */
+
+        .pagination{
+            margin-top:30px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+
+        .pagination span{
+            font-weight:600;
+            color:#444;
+        }
+
+        /* EMPTY STATE */
+
+        .empty-state{
+            text-align:center;
+            padding:60px 20px;
+            color:#666;
+        }
+
+        .empty-state h2{
+            margin-bottom:10px;
+            color:#444;
+        }
+
+        .empty-state p{
+            font-size:17px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:768px){
+
+            .container{
+                padding:20px;
+            }
+
+            h1{
+                font-size:1.5rem;
+            }
+
+            table{
+                display:block;
+                overflow-x:auto;
+                white-space:nowrap;
+            }
+
+            .search-form{
+                flex-direction:column;
+            }
+
+            .search-form button{
+                width:100%;
+            }
+
+            .top-actions{
+                flex-direction:column;
+            }
+
+            .btn{
+                width:100%;
+            }
+        }
+
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>💰 Liste des pénalités</h1>
-        
-        <div>
-            <a href="{% url portal_dashboard_url %}" class="btn">🏠 Retour au tableau de bord</a>
-        </div>
 
-        {% if penalties %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Utilisateur</th>
-                    <th>Emprunt</th>
-                    <th>Livre</th>
-                    <th>Montant</th>
-                    <th>Statut</th>
-                    <th>Date de création</th>
-                    <th>Date de paiement</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for penalty in penalties %}
-                <tr>
-                    <td>{{ penalty.user.username }}</td>
-                    <td>#{{ penalty.borrowing.id }}</td>
-                    <td>{{ penalty.borrowing.book.title }}</td>
-                    <td>{{ penalty.amount }}€</td>
-                    <td>
-                        <span class="badge badge-{{ penalty.status }}">{{ penalty.get_status_display }}</span>
-                    </td>
-                    <td>{{ penalty.created_date|date:"d/m/Y H:i" }}</td>
-                    <td>
-                        {% if penalty.paid_date %}
-                        {{ penalty.paid_date|date:"d/m/Y H:i" }}
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
-                    <td class="actions">
-                        {% if penalty.status == 'pending' %}
-                        <a href="{% url 'library:penalty_mark_paid' penalty.id %}">✅ Marquer payée</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div style="text-align: center; padding: 40px; color: #666;">
-            <p>Aucune pénalité enregistrée.</p>
-        </div>
-        {% endif %}
+<body>
+
+<div class="container">
+
+    <h1>💰 Liste des pénalités</h1>
+
+    <div class="top-actions">
+
+        <a href="{% url portal_dashboard_url %}" class="btn">
+            🏠 Retour au tableau de bord
+        </a>
+
     </div>
+
+    <form method="get" class="search-form">
+
+        <input
+            type="text"
+            name="q"
+            placeholder="Rechercher pénalités par utilisateur, livre ou montant..."
+            value="{{ query }}"
+        >
+
+        <button type="submit">
+            🔍 Rechercher
+        </button>
+
+    </form>
+
+    {% if penalties %}
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Emprunt</th>
+                <th>Livre</th>
+                <th>Montant</th>
+                <th>Statut</th>
+                <th>Date création</th>
+                <th>Date paiement</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for penalty in penalties %}
+
+            <tr>
+
+                <td>
+                    {{ penalty.user.username }}
+                </td>
+
+                <td>
+                    #{{ penalty.borrowing.id }}
+                </td>
+
+                <td>
+                    {{ penalty.borrowing.book.title }}
+                </td>
+
+                <td class="amount">
+                    {{ penalty.amount }}€
+                </td>
+
+                <td>
+                    <span class="badge badge-{{ penalty.status }}">
+                        {{ penalty.get_status_display }}
+                    </span>
+                </td>
+
+                <td>
+                    {{ penalty.created_date|date:"d/m/Y H:i" }}
+                </td>
+
+                <td>
+                    {% if penalty.paid_date %}
+                        {{ penalty.paid_date|date:"d/m/Y H:i" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+                <td class="actions">
+
+                    {% if penalty.status == 'pending' %}
+
+                    <a href="{% url 'library:penalty_mark_paid' penalty.id %}">
+                        ✅ Marquer payée
+                    </a>
+
+                    {% else %}
+                        —
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% if page_obj.has_other_pages %}
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+
+        <a
+            href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}"
+            class="btn"
+        >
+            ⬅️ Précédent
+        </a>
+
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+
+        <a
+            href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}"
+            class="btn"
+        >
+            Suivant ➡️
+        </a>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <h2>📚 Aucune pénalité enregistrée</h2>
+
+        <p>
+            Aucun résultat disponible pour le moment.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
 </body>
 </html>
